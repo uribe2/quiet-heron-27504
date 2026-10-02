@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Drawer } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -12,6 +13,7 @@ import type { QuoteFormValues } from "../schema";
 import type { Client } from "@/features/clients/types";
 import { isQuoteLocked } from "../logic";
 
+const linkClass = "text-link underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus";
 const statusTone = { draft: "neutral", sent: "accent", accepted: "success", rejected: "danger" } as const;
 
 interface QuoteDrawerProps {
@@ -27,6 +29,9 @@ interface QuoteDrawerProps {
   onRevert?: (quote: Quote) => void;
   onDuplicate?: (quote: Quote) => void;
   onConvert?: (quote: Quote) => void;
+  onCreateInvoice?: (quote: Quote) => void;
+  /** Invoice number + id already created from this quote (hides "Crear factura"). */
+  linkedInvoice?: { id: string; number: string };
   canDelete?: boolean;
   onDeleteRequest?: (quote: Quote) => void;
 }
@@ -44,6 +49,8 @@ export function QuoteDrawer({
   onRevert,
   onDuplicate,
   onConvert,
+  onCreateInvoice,
+  linkedInvoice,
   canDelete = false,
   onDeleteRequest,
 }: QuoteDrawerProps) {
@@ -101,6 +108,11 @@ export function QuoteDrawer({
                       {t("quotes.convertAction")}
                     </Button>
                   ) : null}
+                  {quote.status === "accepted" && !linkedInvoice && onCreateInvoice ? (
+                    <Button variant="secondary" onClick={() => onCreateInvoice(quote)}>
+                      {t("quotes.createInvoiceAction")}
+                    </Button>
+                  ) : null}
                   {onDuplicate ? (
                     <Button variant="secondary" onClick={() => onDuplicate(quote)}>
                       {t("quotes.duplicateAction")}
@@ -112,6 +124,21 @@ export function QuoteDrawer({
                     </Button>
                   ) : null}
                 </div>
+              </div>
+            ) : null}
+
+            {quote && (quote.projectId || linkedInvoice) ? (
+              <div className="flex flex-wrap gap-4 text-sm">
+                {quote.projectId ? (
+                  <Link href={`/projects/${quote.projectId}`} className={linkClass}>
+                    {t("quotes.viewProjectLink")}
+                  </Link>
+                ) : null}
+                {linkedInvoice ? (
+                  <Link href={`/invoices/${linkedInvoice.id}`} className={linkClass}>
+                    {t("quotes.viewInvoiceLink", { number: linkedInvoice.number })}
+                  </Link>
+                ) : null}
               </div>
             ) : null}
 

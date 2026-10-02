@@ -4,6 +4,11 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "@/context/i18n-context";
+import { useToast } from "@/context/toast-context";
+import { useInvoices } from "@/features/invoices/use-invoices";
+import { getUnbilledEntries } from "@/features/invoices/logic";
+import { BillHoursDialog } from "@/features/invoices/components/bill-hours-dialog";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { useData } from "@/context/data-context";
 import { useProjects, useProject } from "@/features/projects/use-projects";
 import { useClients } from "@/features/clients/use-clients";
@@ -29,7 +34,10 @@ export default function ProjectDetailPage() {
   const { updateProject, setStatus, deleteProject, getDeletionCheck } = useProjects();
   const { clients } = useClients();
   const { data } = useData();
+  const { show } = useToast();
+  const { createFromTimeEntries } = useInvoices();
   const drawer = useDisclosure(false);
+  const billDialog = useDisclosure(false);
   const [tab, setTab] = useState("summary");
   const [pendingStatus, setPendingStatus] = useState<ProjectStatus | null>(null);
   const [deleteTarget, setDeleteTarget] = useState(false);
@@ -52,6 +60,14 @@ export default function ProjectDetailPage() {
   const deliverables = data.deliverables.filter((d) => d.projectId === current.id).sort((a, b) => a.order - b.order);
   const timeEntries = data.timeEntries.filter((t) => t.projectId === current.id);
   const progress = getProjectProgress(current, deliverables, timeEntries);
+  const unbilled = current.billingType === "hourly" ? getUnbilledEntries(data.timeEntries, current.id) : [];
+
+  function handleBillHours(entryIds: string[]) {
+    const invoice = createFromTimeEntries(current.id, entryIds);
+    if (!invoice) return;
+    show({ message: t("projects.billHoursCreatedToast", { number: invoice.number }) });
+    router.push(`/invoices/${invoice.id}`);
+  }
 
   function handleSubmit(values: ProjectFormValues) {
     updateProject(current.id, values);
@@ -89,6 +105,11 @@ export default function ProjectDetailPage() {
         breadcrumbs={[{ label: t("projects.title"), href: "/projects" }, { label: current.name }]}
         actions={
           <div className="flex items-center gap-2">
+            {unbilled.length > 0 ? (
+              <Button variant="secondary" onClick={billDialog.open}>
+                {t("projects.billHoursAction")}
+              </Button>
+            ) : null}
             <Button variant="secondary" onClick={drawer.open}>
               {t("projects.editAction")}
             </Button>
@@ -164,8 +185,12 @@ export default function ProjectDetailPage() {
           ) : (
             <ul className="flex flex-col gap-2">
               {timeEntries.map((entry) => (
-                <li key={entry.id} className="rounded-lg border border-border p-3 text-sm">
-                  {entry.description} — {(entry.durationMinutes / 60).toFixed(1)}h
+                <li key={entry.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3 text-sm">
+                  <span>
+                    <span className="text-text-muted">{formatDate(entry.startedAt)}</span> — {entry.description} —{" "}
+                    {(entry.durationMinutes / 60).toFixed(1)}h
+                  </span>
+                  {entry.invoiceId ? <StatusBadge label={t("time.invoicedBadge")} tone="success" /> : null}
                 </li>
               ))}
             </ul>
@@ -176,6 +201,14 @@ export default function ProjectDetailPage() {
           <p className="text-sm text-text-muted">{current.description || "—"}</p>
         ) : null}
       </div>
+
+      <BillHoursDialog
+        isOpen={billDialog.isOpen}
+        onClose={billDialog.close}
+        projectName={current.name}
+        entries={unbilled}
+        onConfirm={handleBillHours}
+      />
 
       <ProjectDrawer isOpen={drawer.isOpen} onClose={drawer.close} project={current} clients={clients} onSubmit={handleSubmit} />
 

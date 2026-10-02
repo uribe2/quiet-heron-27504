@@ -4,7 +4,6 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "@/context/i18n-context";
-import { useData } from "@/context/data-context";
 import { useClients, useClient } from "@/features/clients/use-clients";
 import { getPrimaryContact } from "@/features/clients/logic";
 import { PageHeader } from "@/components/ui/page-header";
@@ -13,15 +12,15 @@ import { Card } from "@/components/ui/card";
 import { Tabs } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ClientDrawer } from "@/features/clients/components/client-drawer";
+import { ActivityTab, ClientHealth, DocumentsTab, ProjectsTab, QuotesInvoicesTab } from "@/features/clients/components/client-detail-tabs";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import type { ClientFormValues } from "@/features/clients/schema";
 
 export default function ClientDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { t, formatDate } = useTranslation();
+  const { t } = useTranslation();
   const client = useClient(id);
   const { clients, updateClient } = useClients();
-  const { data } = useData();
   const drawer = useDisclosure(false);
   const [tab, setTab] = useState("activity");
 
@@ -39,11 +38,6 @@ export default function ClientDetailPage() {
 
   const activeClient = client;
   const primary = getPrimaryContact(activeClient);
-  const interactions = data.interactions.filter((i) => i.clientId === activeClient.id);
-  const projects = data.projects.filter((p) => p.clientId === activeClient.id);
-  const quotes = data.quotes.filter((q) => q.clientId === activeClient.id);
-  const invoices = data.invoices.filter((i) => i.clientId === activeClient.id);
-  const documents = data.documents.filter((d) => d.clientId === activeClient.id);
 
   function handleSubmit(values: ClientFormValues) {
     updateClient(activeClient.id, values);
@@ -79,6 +73,7 @@ export default function ClientDetailPage() {
             tone={client.status === "active" ? "success" : "neutral"}
           />
         </div>
+        <ClientHealth clientId={activeClient.id} />
       </Card>
 
       <Tabs
@@ -93,70 +88,10 @@ export default function ClientDetailPage() {
       />
 
       <div className="py-4">
-        {tab === "activity" ? (
-          interactions.length === 0 ? (
-            <p className="text-sm text-text-muted">{t("clients.noActivityYet")}</p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {interactions.map((i) => (
-                <li key={i.id} className="rounded-lg border border-border p-3 text-sm">
-                  <span className="text-text-muted">{formatDate(i.occurredAt)}</span> — {i.summary}
-                </li>
-              ))}
-            </ul>
-          )
-        ) : null}
-
-        {tab === "projects" ? (
-          projects.length === 0 ? (
-            <p className="text-sm text-text-muted">{t("clients.noProjectsYet")}</p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {projects.map((p) => (
-                <li key={p.id} className="rounded-lg border border-border p-3 text-sm">
-                  <Link href={`/projects/${p.id}`} className="text-link underline-offset-2 hover:underline">
-                    {p.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )
-        ) : null}
-
-        {tab === "quotes-invoices" ? (
-          quotes.length === 0 && invoices.length === 0 ? (
-            <p className="text-sm text-text-muted">{t("clients.noQuotesInvoicesYet")}</p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {quotes.map((q) => (
-                <li key={q.id} className="rounded-lg border border-border p-3 text-sm">
-                  {q.number} — {q.title}
-                </li>
-              ))}
-              {invoices.map((inv) => (
-                <li key={inv.id} className="rounded-lg border border-border p-3 text-sm">
-                  <Link href={`/invoices/${inv.id}`} className="text-link underline-offset-2 hover:underline">
-                    {inv.number}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )
-        ) : null}
-
-        {tab === "documents" ? (
-          documents.length === 0 ? (
-            <p className="text-sm text-text-muted">{t("clients.noDocumentsYet")}</p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {documents.map((d) => (
-                <li key={d.id} className="rounded-lg border border-border p-3 text-sm">
-                  {d.name}
-                </li>
-              ))}
-            </ul>
-          )
-        ) : null}
+        {tab === "activity" ? <ActivityTab clientId={activeClient.id} /> : null}
+        {tab === "projects" ? <ProjectsTab clientId={activeClient.id} /> : null}
+        {tab === "quotes-invoices" ? <QuotesInvoicesTab clientId={activeClient.id} /> : null}
+        {tab === "documents" ? <DocumentsTab clientId={activeClient.id} /> : null}
       </div>
 
       <ClientDrawer

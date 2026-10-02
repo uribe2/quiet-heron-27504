@@ -1,10 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FileText } from "lucide-react";
 import { useTranslation } from "@/context/i18n-context";
 import { useToast } from "@/context/toast-context";
 import { useQuotes } from "@/features/quotes/use-quotes";
+import { useInvoices } from "@/features/invoices/use-invoices";
 import { useClients } from "@/features/clients/use-clients";
 import { filterQuotes, type QuoteFilters } from "@/features/quotes/logic";
 import type { Quote } from "@/features/quotes/types";
@@ -36,6 +38,8 @@ export default function QuotesPage() {
     deleteDraftWithUndo,
   } = useQuotes();
   const { clients } = useClients();
+  const { invoices, createFromQuote } = useInvoices();
+  const router = useRouter();
   const drawer = useDisclosure(false);
   const [editingQuote, setEditingQuote] = useState<Quote | undefined>(undefined);
   const [filters, setFilters] = useState<QuoteFilters>({ status: "all" });
@@ -78,6 +82,16 @@ export default function QuotesPage() {
     setDeleteTarget(quote);
   }
 
+  const currentQuote = editingQuote ? quotes.find((q) => q.id === editingQuote.id) ?? editingQuote : undefined;
+  const linkedInvoice = editingQuote ? invoices.find((i) => i.quoteId === editingQuote.id) : undefined;
+
+  function handleCreateInvoice(quote: Quote) {
+    const invoice = createFromQuote(quote);
+    show({ message: t("quotes.invoiceCreatedToast", { number: invoice.number }) });
+    drawer.close();
+    router.push(`/invoices/${invoice.id}`);
+  }
+
   return (
     <div>
       <PageHeader title={t("quotes.title")} actions={<Button onClick={openCreate}>{t("quotes.createButton")}</Button>} />
@@ -112,7 +126,7 @@ export default function QuotesPage() {
       <QuoteDrawer
         isOpen={drawer.isOpen}
         onClose={drawer.close}
-        quote={editingQuote}
+        quote={currentQuote}
         clients={activeClients}
         onSubmit={handleSubmit}
         onSend={(q) => {
@@ -141,6 +155,8 @@ export default function QuotesPage() {
           show({ message: t("quotes.convertedToast") });
           drawer.close();
         }}
+        onCreateInvoice={handleCreateInvoice}
+        linkedInvoice={linkedInvoice ? { id: linkedInvoice.id, number: linkedInvoice.number } : undefined}
         canDelete={editingQuote ? isDeletable(editingQuote) : false}
         onDeleteRequest={handleRequestDelete}
       />
