@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { renderHook, act, screen, fireEvent } from "@testing-library/react";
 import { useMeetings } from "../use-meetings";
 import { useData } from "@/context/data-context";
 import { ProvidersWrapper } from "@/test/render-with-providers";
@@ -85,5 +85,31 @@ describe("HU-10.4 Eliminar reunión", () => {
 
     expect(result.current.data.data.meetings.find((m) => m.id === "m-3")).toBeUndefined();
     expect(result.current.data.data.interactions).toHaveLength(interactionsBefore);
+  });
+
+  it("shows an undo toast that restores the meeting", () => {
+    const { result } = renderHook(() => useMeetings(), { wrapper: ProvidersWrapper });
+    const target = result.current.meetings.find((m) => m.id === "m-2")!;
+
+    act(() => {
+      result.current.deleteMeeting(target);
+    });
+    expect(result.current.meetings.find((m) => m.id === "m-2")).toBeUndefined();
+
+    fireEvent.click(screen.getByText("Deshacer"));
+    expect(result.current.meetings.find((m) => m.id === "m-2")).toBeDefined();
+  });
+
+  it("only removes the targeted meeting", () => {
+    const { result } = renderHook(() => useMeetings(), { wrapper: ProvidersWrapper });
+    const before = result.current.meetings.length;
+    const target = result.current.meetings.find((m) => m.id === "m-4")!;
+
+    act(() => {
+      result.current.deleteMeeting(target);
+    });
+
+    expect(result.current.meetings).toHaveLength(before - 1);
+    expect(result.current.meetings.find((m) => m.id === "m-1")).toBeDefined();
   });
 });
