@@ -1,16 +1,282 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import Link from "next/link";
 import { useTranslation } from "@/context/i18n-context";
+import { useToast } from "@/context/toast-context";
+import { useData } from "@/context/data-context";
+import { useClients } from "@/features/clients/use-clients";
+import { useInvoice, useInvoices } from "@/features/invoices/use-invoices";
+import {
+  canCancelInvoice,
+  canDeleteInvoice,
+  canEditNotesAndDue,
+  canMarkSent,
+  isInvoiceFullyEditable,
+} from "@/features/invoices/logic";
+import { calculateTotals } from "@/lib/money";
+import { useDisclosure } from "@/hooks/use-disclosure";
 import { PageHeader } from "@/components/ui/page-header";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from "@/components/ui/table";
+import { InvoiceDrawer } from "@/features/invoices/components/invoice-drawer";
+import { InvoiceStatusBadge } from "@/features/invoices/components/invoice-status-badge";
+import type { InvoiceFormValues } from "@/features/invoices/schema";
+import type { Invoice } from "@/features/invoices/types";
+
+const methodKeys = {
+  transfer: "invoices.methodTransfer",
+  card: "invoices.methodCard",
+  cash: "invoices.methodCash",
+  other: "invoices.methodOther",
+} as const;
+
+function NotesDueForm({ invoice, onSave }: { invoice: Invoice; onSave: (v: { dueDate: string; notes: string }) => void }) {
+  const { t } = useTranslation();
+  const [dueDate, setDueDate] = useState(invoice.dueDate);
+  const [notes, setNotes] = useState(invoice.notes ?? "");
+  const invalid = !dueDate || dueDate < invoice.issueDate;
+  return (
+    <Card className="mb-6">
+      <p className="mb-3 text-sm text-text-muted">{t("invoices.limitedNotice")}</p>
+      <div className="flex flex-col gap-4">
+        <FormField
+          label={t("invoices.fieldDueDate")}
+          error={invalid ? t("invoices.errorDueBeforeIssue") : undefined}
+        >
+          <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+        </FormField>
+        <FormField label={t("invoices.fieldNotes")}>
+          <Textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
+        </FormField>
+        <div className="flex justify-end">
+          <Button disabled={invalid} onClick={() => onSave({ dueDate, notes })}>
+            {t("invoices.saveChanges")}
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+}
 
 export default function InvoiceDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { t } = useTranslation();
+  const router = useRouter();
+  const { t, formatMoney, formatDate } = useTranslation();
+  const { show } = useToast();
+  const { data } = useData();
+  const invoice = useInvoice(id);
+  const { updateDraft, updateNotesAndDue, markSent, cancelInvoice, deleteDraftWithUndo, getFinancials } = useInvoices();
+  const { clients } = useClients();
+  const drawer = useDisclosure(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
+
+  if (!invoice) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-24 text-center">
+        <h1 className="text-xl font-semibold text-text">{t("invoices.notFoundTitle")}</h1>
+        <p className="text-sm text-text-muted">{t("invoices.notFoundBody")}</p>
+        <Link
+          href="/invoices"
+          className="text-link underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+        >
+          {t("invoices.backToList")}
+        </Link>
+      </div>
+    );
+  }
+
+  const current = invoice;
+  const client = data.clients.find((c) => c.id === current.clientId);
+  const project = data.projects.find((p) => p.id === current.projectId);
+  const payments = data.payments
+    .filter((p) => p.invoiceId === current.id)
+    .sort((a, b) => b.date.localeCompare(a.date));
+  const totals = calculateTotals(current.items, current.taxRate);
+  const financials = getFinancials(current);
+  const editable = isInvoiceFullyEditable(current);
+  const activeClients = clients.filter((c) => c.status === "active" || c.id === current.clientId);
+
+  function handleSubmit(values: InvoiceFormValues) {
+    updateDraft(current.id, values);
+    show({ message: t("invoices.savedToast") });
+    drawer.close();
+  }
+
+  function handleDelete() {
+    if (deleteDraftWithUndo(current)) router.push("/invoices");
+  }
+
   return (
-    <PageHeader
-      title={t("invoices.title")}
-      breadcrumbs={[{ label: t("invoices.title"), href: "/invoices" }, { label: id }]}
-    />
+    <div>
+      <PageHeader
+        title={current.number}
+        breadcrumbs={[{ label: t("invoices.title"), href: "/invoices" }, { label: current.number }]}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            {editable ? (
+              <Button variant="secondary" onClick={drawer.open}>
+                {t("invoices.editAction")}
+              </Button>
+            ) : null}
+            {canMarkSent(current) ? (
+              <Button
+                onClick={() => {
+                  markSent(current);
+                  show({ message: t("invoices.sentToast") });
+                }}
+              >
+                {t("invoices.markSentAction")}
+              </Button>
+            ) : null}
+            {canCancelInvoice(current) ? (
+              <Button variant="destructive" onClick={() => setConfirmCancel(true)}>
+                {t("invoices.cancelAction")}
+              </Button>
+            ) : null}
+            {canDeleteInvoice(current) ? (
+              <Button variant="destructive" onClick={handleDelete}>
+                {t("invoices.deleteAction")}
+              </Button>
+            ) : null}
+          </div>
+        }
+      />
+
+      <Card className="mb-6">
+        <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-5">
+          <div>
+            <p className="text-text-muted">{t("invoices.columnStatus")}</p>
+            <InvoiceStatusBadge status={financials.displayStatus} />
+          </div>
+          <div>
+            <p className="text-text-muted">{t("invoices.fieldClient")}</p>
+            <p className="text-text">{client?.name ?? "—"}</p>
+          </div>
+          <div>
+            <p className="text-text-muted">{t("invoices.fieldProject")}</p>
+            <p className="text-text">{project?.name ?? "—"}</p>
+          </div>
+          <div>
+            <p className="text-text-muted">{t("invoices.columnIssue")}</p>
+            <p className="text-text">{formatDate(current.issueDate)}</p>
+          </div>
+          <div>
+            <p className="text-text-muted">{t("invoices.columnDue")}</p>
+            <p className="text-text">{formatDate(current.dueDate)}</p>
+          </div>
+        </div>
+        {current.notes ? <p className="mt-4 text-sm text-text-muted">{current.notes}</p> : null}
+        {!canEditNotesAndDue(current) ? (
+          <p className="mt-4 text-xs text-text-muted">{t("invoices.readOnlyNotice")}</p>
+        ) : null}
+        {current.status === "sent" ? (
+          <p className="mt-2 text-xs text-text-muted">{t("invoices.cancelExplain")}</p>
+        ) : null}
+      </Card>
+
+      {current.status === "sent" ? (
+        <NotesDueForm
+          key={`${current.dueDate}|${current.notes ?? ""}`}
+          invoice={current}
+          onSave={(v) => {
+            updateNotesAndDue(current.id, v);
+            show({ message: t("invoices.savedToast") });
+          }}
+        />
+      ) : null}
+
+      <h2 className="mb-3 text-lg font-semibold text-text">{t("invoices.sectionItems")}</h2>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableHeaderCell>{t("invoices.itemDescription")}</TableHeaderCell>
+            <TableHeaderCell>{t("invoices.itemQuantity")}</TableHeaderCell>
+            <TableHeaderCell>{t("invoices.itemUnitPrice")}</TableHeaderCell>
+            <TableHeaderCell>{t("invoices.total")}</TableHeaderCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {current.items.map((item) => (
+            <TableRow key={item.id}>
+              <TableCell>{item.description}</TableCell>
+              <TableCell>{item.quantity}</TableCell>
+              <TableCell>{formatMoney(item.unitPriceCents)}</TableCell>
+              <TableCell>{formatMoney(Math.round(item.quantity * item.unitPriceCents))}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
+      <div className="mt-4 ml-auto flex max-w-xs flex-col gap-1 rounded-lg bg-bg p-4 text-sm">
+        <div className="flex justify-between">
+          <span className="text-text-muted">{t("invoices.subtotal")}</span>
+          <span>{formatMoney(totals.subtotalCents)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-text-muted">
+            {t("invoices.tax")} {current.taxRate}
+          </span>
+          <span>{formatMoney(totals.taxCents)}</span>
+        </div>
+        <div className="flex justify-between font-semibold text-text">
+          <span>{t("invoices.total")}</span>
+          <span>{formatMoney(totals.totalCents)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-text-muted">{t("invoices.paidLabel")}</span>
+          <span>{formatMoney(financials.paidCents)}</span>
+        </div>
+        <div className="flex justify-between font-semibold text-text">
+          <span>{t("invoices.balanceLabel")}</span>
+          <span>{formatMoney(financials.balanceCents)}</span>
+        </div>
+      </div>
+
+      <h2 className="mb-3 mt-8 text-lg font-semibold text-text">{t("invoices.paymentsTitle")}</h2>
+      {payments.length === 0 ? (
+        <p className="text-sm text-text-muted">{t("invoices.noPayments")}</p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {payments.map((p) => (
+            <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3 text-sm">
+              <span>
+                {formatDate(p.date)} — {t(methodKeys[p.method])}
+                {p.reference ? ` (${t("invoices.paymentReference", { reference: p.reference })})` : ""}
+              </span>
+              <span className="font-medium">{formatMoney(p.amountCents)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <InvoiceDrawer
+        isOpen={drawer.isOpen}
+        onClose={drawer.close}
+        clients={activeClients}
+        invoice={current}
+        onSubmit={handleSubmit}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmCancel}
+        onClose={() => setConfirmCancel(false)}
+        onConfirm={() => {
+          cancelInvoice(current);
+          show({ message: t("invoices.cancelledToast") });
+        }}
+        title={t("invoices.cancelConfirmTitle", { number: current.number })}
+        description={t("invoices.cancelConfirmBody")}
+        confirmLabel={t("invoices.cancelConfirmConfirm")}
+        cancelLabel={t("invoices.cancelConfirmCancel")}
+        destructive
+      />
+    </div>
   );
 }
