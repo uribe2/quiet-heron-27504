@@ -26,6 +26,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } from "@/components/ui/table";
 import { InvoiceDrawer } from "@/features/invoices/components/invoice-drawer";
+import { PaymentDrawer } from "@/features/payments/components/payment-drawer";
+import { usePayments } from "@/features/payments/use-payments";
+import type { Payment } from "@/features/payments/types";
+import { IconButton } from "@/components/ui/icon-button";
+import { Pencil, Trash2 } from "lucide-react";
 import { InvoiceStatusBadge } from "@/features/invoices/components/invoice-status-badge";
 import type { InvoiceFormValues } from "@/features/invoices/schema";
 import type { Invoice } from "@/features/invoices/types";
@@ -75,6 +80,9 @@ export default function InvoiceDetailPage() {
   const { updateDraft, updateNotesAndDue, markSent, cancelInvoice, deleteDraftWithUndo, getFinancials } = useInvoices();
   const { clients } = useClients();
   const drawer = useDisclosure(false);
+  const paymentDrawer = useDisclosure(false);
+  const { deletePaymentWithUndo } = usePayments();
+  const [editingPayment, setEditingPayment] = useState<Payment | undefined>();
   const [confirmCancel, setConfirmCancel] = useState(false);
 
   if (!invoice) {
@@ -133,6 +141,16 @@ export default function InvoiceDetailPage() {
                 }}
               >
                 {t("invoices.markSentAction")}
+              </Button>
+            ) : null}
+            {current.status === "sent" && financials.balanceCents > 0 ? (
+              <Button
+                onClick={() => {
+                  setEditingPayment(undefined);
+                  paymentDrawer.open();
+                }}
+              >
+                {t("payments.registerAction")}
               </Button>
             ) : null}
             {canCancelInvoice(current) ? (
@@ -250,7 +268,28 @@ export default function InvoiceDetailPage() {
                 {formatDate(p.date)} — {t(methodKeys[p.method])}
                 {p.reference ? ` (${t("invoices.paymentReference", { reference: p.reference })})` : ""}
               </span>
-              <span className="font-medium">{formatMoney(p.amountCents)}</span>
+              <span className="flex items-center gap-1">
+                <span className="font-medium">{formatMoney(p.amountCents)}</span>
+                {current.status === "sent" || current.status === "paid" ? (
+                  <>
+                    <IconButton
+                      aria-label={t("payments.editActionFor", { number: current.number })}
+                      onClick={() => {
+                        setEditingPayment(p);
+                        paymentDrawer.open();
+                      }}
+                    >
+                      <Pencil className="h-4 w-4" aria-hidden="true" />
+                    </IconButton>
+                    <IconButton
+                      aria-label={t("payments.deleteActionFor", { number: current.number })}
+                      onClick={() => deletePaymentWithUndo(p)}
+                    >
+                      <Trash2 className="h-4 w-4" aria-hidden="true" />
+                    </IconButton>
+                  </>
+                ) : null}
+              </span>
             </li>
           ))}
         </ul>
@@ -262,6 +301,13 @@ export default function InvoiceDetailPage() {
         clients={activeClients}
         invoice={current}
         onSubmit={handleSubmit}
+      />
+
+      <PaymentDrawer
+        isOpen={paymentDrawer.isOpen}
+        onClose={paymentDrawer.close}
+        payment={editingPayment}
+        invoiceId={current.id}
       />
 
       <ConfirmDialog
