@@ -19,6 +19,7 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ProjectDrawer } from "@/features/projects/components/project-drawer";
 import { useDisclosure } from "@/hooks/use-disclosure";
+import { ProjectDeliverables } from "@/features/deliverables/components/project-deliverables";
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -155,19 +156,7 @@ export default function ProjectDetailPage() {
       />
 
       <div className="py-4">
-        {tab === "deliverables" ? (
-          deliverables.length === 0 ? (
-            <p className="text-sm text-text-muted">{t("projects.noDeliverablesYet")}</p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {deliverables.map((d) => (
-                <li key={d.id} className="rounded-lg border border-border p-3 text-sm">
-                  {d.title} — {formatDate(d.dueDate)}
-                </li>
-              ))}
-            </ul>
-          )
-        ) : null}
+        {tab === "deliverables" ? <ProjectDeliverables projectId={current.id} /> : null}
 
         {tab === "time" ? (
           timeEntries.length === 0 ? (
