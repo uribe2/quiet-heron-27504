@@ -1,0 +1,10 @@
+node_modules
+.next
+.git
+docs
+CLAUDE.md
+KICKOFF.md
+npm-debug.log*
+coverage
+test-results
+playwright-report
