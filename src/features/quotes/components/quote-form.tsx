@@ -19,7 +19,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { IconButton } from "@/components/ui/icon-button";
 import { Button } from "@/components/ui/button";
 
-function quoteToDefaults(quote: Quote | undefined, defaultTaxRate: number): QuoteFormValues {
+function quoteToDefaults(
+  quote: Quote | undefined,
+  defaultTaxRate: number,
+  initialValues?: Partial<QuoteFormValues>,
+): QuoteFormValues {
   return {
     clientId: quote?.clientId ?? "",
     opportunityId: quote?.opportunityId,
@@ -29,6 +33,7 @@ function quoteToDefaults(quote: Quote | undefined, defaultTaxRate: number): Quot
     paymentTerms: quote?.paymentTerms ?? "",
     validUntil: quote?.validUntil ?? "",
     scope: quote?.scope ?? "",
+    ...(quote ? {} : initialValues),
   };
 }
 
@@ -36,11 +41,12 @@ interface QuoteFormProps {
   quote?: Quote;
   clients: Client[];
   readOnly?: boolean;
+  initialValues?: Partial<QuoteFormValues>;
   onSubmit: (values: QuoteFormValues, intent: "draft" | "send") => void;
   onDirtyChange?: (isDirty: boolean) => void;
 }
 
-export function QuoteForm({ quote, clients, readOnly = false, onSubmit, onDirtyChange }: QuoteFormProps) {
+export function QuoteForm({ quote, clients, readOnly = false, initialValues, onSubmit, onDirtyChange }: QuoteFormProps) {
   const { t, formatMoney } = useTranslation();
   const { data } = useData();
   const {
@@ -51,7 +57,7 @@ export function QuoteForm({ quote, clients, readOnly = false, onSubmit, onDirtyC
     formState: { errors, isDirty },
   } = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
-    defaultValues: quoteToDefaults(quote, data.settings.defaultTaxRate),
+    defaultValues: quoteToDefaults(quote, data.settings.defaultTaxRate, initialValues),
   });
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
   const items = watch("items");

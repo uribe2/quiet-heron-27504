@@ -18,6 +18,7 @@ interface QuoteDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   quote?: Quote;
+  initialValues?: Partial<QuoteFormValues>;
   clients: Client[];
   onSubmit: (values: QuoteFormValues, intent: "draft" | "send") => void;
   onSend?: (quote: Quote) => void;
@@ -34,6 +35,7 @@ export function QuoteDrawer({
   isOpen,
   onClose,
   quote,
+  initialValues,
   clients,
   onSubmit,
   onSend,
@@ -115,7 +117,7 @@ export function QuoteDrawer({
 
             {locked ? <p className="text-xs text-text-muted">{t("quotes.lockedNotice")}</p> : null}
 
-            <QuoteForm quote={quote} clients={clients} readOnly={locked} onSubmit={onSubmit} onDirtyChange={setIsDirty} />
+            <QuoteForm quote={quote} clients={clients} readOnly={locked} initialValues={initialValues} onSubmit={onSubmit} onDirtyChange={setIsDirty} />
 
             {quote && quote.history.length > 0 ? (
               <div className="border-t border-border pt-4">
