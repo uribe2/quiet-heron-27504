@@ -1,7 +1,17 @@
+"use client";
+
+import { useTranslation } from "@/context/i18n-context";
+import { useData } from "@/context/data-context";
+import { PageHeader } from "@/components/ui/page-header";
+
 export default function Home() {
+  const { t } = useTranslation();
+  const { data } = useData();
+
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-2xl font-semibold text-text">ClientBrain</h1>
-    </main>
+    <PageHeader
+      title={t("dashboard.title")}
+      description={t("dashboard.greeting", { name: data.settings.userName })}
+    />
   );
 }
