@@ -11,9 +11,11 @@ import { useData } from "@/context/data-context";
 export function Sidebar({
   isOpen,
   onCloseMobile,
+  onNewProject,
 }: {
   isOpen: boolean;
   onCloseMobile: () => void;
+  onNewProject: () => void;
 }) {
   const pathname = usePathname();
   const { t, lang, setLang } = useTranslation();
@@ -38,14 +40,17 @@ export function Sidebar({
           <Link href="/" className="text-lg font-semibold text-text" onClick={onCloseMobile}>
             {t("common.appName")}
           </Link>
-          <Link
-            href="/projects"
-            onClick={onCloseMobile}
+          <button
+            type="button"
+            onClick={() => {
+              onNewProject();
+              onCloseMobile();
+            }}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-text px-4 text-sm font-medium text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2"
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
             {t("nav.newProject")}
-          </Link>
+          </button>
         </div>
 
         <nav aria-label={t("nav.home")} className="flex-1 px-2 py-4">
