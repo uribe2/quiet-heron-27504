@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { nextQuoteNumber, isQuoteEditable, isQuoteLocked, canDeleteQuote, isQuoteUnanswered, filterQuotes } from "../logic";
+import { nextQuoteNumber, isQuoteEditable, isQuoteLocked, canDeleteQuote, isQuoteUnanswered, filterQuotes, sortQuotes } from "../logic";
 import type { Quote } from "../types";
 
 const now = new Date().toISOString();
@@ -34,6 +34,24 @@ describe("HU-07.1 Listar cotizaciones", () => {
   it("filterQuotes matches by number or title", () => {
     const quotes = [quote({ id: "1", number: "COT-2026-001", title: "Sitio web" }), quote({ id: "2", number: "COT-2026-002", title: "SEO" })];
     expect(filterQuotes(quotes, { search: "seo" }).map((q) => q.id)).toEqual(["2"]);
+  });
+
+  it("sortQuotes orders by number ascending and descending", () => {
+    const quotes = [quote({ id: "b", number: "COT-2026-002" }), quote({ id: "a", number: "COT-2026-001" })];
+    expect(sortQuotes(quotes, "number", "asc", {}).map((q) => q.id)).toEqual(["a", "b"]);
+    expect(sortQuotes(quotes, "number", "desc", {}).map((q) => q.id)).toEqual(["b", "a"]);
+  });
+
+  it("sortQuotes orders by total using line items and tax", () => {
+    const cheap = quote({ id: "cheap", items: [{ id: "1", description: "x", quantity: 1, unitPriceCents: 100 }] });
+    const pricey = quote({ id: "pricey", items: [{ id: "1", description: "x", quantity: 3, unitPriceCents: 5000 }] });
+    expect(sortQuotes([pricey, cheap], "total", "asc", {}).map((q) => q.id)).toEqual(["cheap", "pricey"]);
+  });
+
+  it("sortQuotes orders by client name, not client id", () => {
+    const quotes = [quote({ id: "z", clientId: "c-1" }), quote({ id: "y", clientId: "c-2" })];
+    const names = { "c-1": "Zeta Corp", "c-2": "Alfa SA" };
+    expect(sortQuotes(quotes, "client", "asc", names).map((q) => q.id)).toEqual(["y", "z"]);
   });
 
   it("isQuoteUnanswered flags quotes sent more than 7 days ago", () => {

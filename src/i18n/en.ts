@@ -470,6 +470,7 @@ export const en: typeof es = {
     columnTotal: "Total",
     columnStatus: "Status",
     columnUpdated: "Last updated",
+    sortHint: "(sort by this column)",
     emptyTitle: "You don't have any quotes yet",
     emptyDescription: "Create your first quote to send a proposal.",
     emptyFilteredTitle: "We couldn't find any quotes",

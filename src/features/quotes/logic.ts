@@ -1,4 +1,5 @@
 import { dateOnly, diffInDays } from "@/lib/dates";
+import { calculateTotals } from "@/lib/money";
 import type { Quote, QuoteHistoryAction, QuoteStatus } from "./types";
 
 export function nextQuoteNumber(quotes: Quote[], year: string): string {
@@ -36,6 +37,39 @@ export function appendHistory(
   note?: string,
 ): Quote["history"] {
   return [...history, { at: nowISO, action, note }];
+}
+
+export type QuoteSortKey = "number" | "client" | "title" | "total" | "status" | "updatedAt";
+export type SortDirection = "asc" | "desc";
+
+export function sortQuotes(
+  quotes: Quote[],
+  key: QuoteSortKey,
+  direction: SortDirection,
+  clientNames: Record<string, string>,
+): Quote[] {
+  const value = (q: Quote): string | number => {
+    switch (key) {
+      case "client":
+        return (clientNames[q.clientId] ?? "").toLowerCase();
+      case "title":
+        return q.title.toLowerCase();
+      case "total":
+        return calculateTotals(q.items, q.taxRate).totalCents;
+      case "status":
+        return q.status;
+      case "updatedAt":
+        return q.updatedAt;
+      default:
+        return q.number;
+    }
+  };
+  const factor = direction === "asc" ? 1 : -1;
+  return [...quotes].sort((a, b) => {
+    const va = value(a);
+    const vb = value(b);
+    return (va < vb ? -1 : va > vb ? 1 : 0) * factor;
+  });
 }
 
 export interface QuoteFilters {

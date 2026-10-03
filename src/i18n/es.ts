@@ -468,6 +468,7 @@ export const es = {
     columnTotal: "Total",
     columnStatus: "Estado",
     columnUpdated: "Última actualización",
+    sortHint: "(ordenar por esta columna)",
     emptyTitle: "Aún no tienes cotizaciones",
     emptyDescription: "Crea tu primera cotización para enviar una propuesta.",
     emptyFilteredTitle: "No encontramos cotizaciones",
