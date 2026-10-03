@@ -15,7 +15,7 @@ import { getClientHealth } from "@/features/ai/logic";
 
 const linkClass =
   "text-link underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus";
-const rowClass = "rounded-lg border border-border p-3 text-sm";
+const rowClass = "rounded-xl border border-border bg-surface p-4 text-sm";
 
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -28,8 +28,8 @@ export function ClientHealth({ clientId }: { clientId: string }) {
   const tone = label === "healthy" ? "success" : label === "attention" ? "warning" : "danger";
   const text = t("clients.healthScore", { label: t(`clients.health${capitalize(label)}`), score });
   return (
-    <div className="mt-4 max-w-sm">
-      <p className="mb-1 text-xs font-medium text-text-muted">{t("clients.healthTitle")}</p>
+    <div>
+      <p className="label-eyebrow mb-3">{t("clients.healthTitle")}</p>
       <ProgressBar percent={score} label={text} tone={tone} />
     </div>
   );

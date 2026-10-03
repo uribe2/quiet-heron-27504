@@ -75,9 +75,9 @@ export default function DocumentsPage() {
         />
       ) : (
         <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex flex-col gap-3">
             <DocumentFiltersBar filters={filters} clients={activeClients} projects={projects} tags={tags} onChange={setFilters} />
-            <div role="group" aria-label={t("documents.viewLabel")} className="flex gap-2">
+            <div role="group" aria-label={t("documents.viewLabel")} className="flex gap-2 self-end">
               {viewButton("list", t("documents.viewList"), List)}
               {viewButton("grid", t("documents.viewGrid"), LayoutGrid)}
             </div>

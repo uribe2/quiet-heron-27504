@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type KeyboardEvent } from "react";
-import { Send } from "lucide-react";
+import { Send, MessageSquare, Sparkles, User, AlertTriangle } from "lucide-react";
 import { useTranslation } from "@/context/i18n-context";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,28 +55,52 @@ export function ChatSection({ conversation, onExchange }: Props) {
 
   return (
     <Card className="flex flex-col gap-4">
-      <h2 className="text-lg font-semibold text-text">{t("ai.askTitle")}</h2>
+      <h2 className="flex items-center gap-2 text-xl font-semibold text-text">
+        <MessageSquare className="h-5 w-5 text-accent" aria-hidden="true" />
+        {t("ai.askTitle")}
+      </h2>
+
+      <div className="flex flex-col gap-2">
+        <p className="label-eyebrow">{t("ai.suggestedTitle")}</p>
+        <div className="flex flex-wrap gap-2">
+          {SUGGESTED.map((key) => (
+            <Button key={key} variant="secondary" disabled={isLoading} onClick={() => void submit(t(key))}>
+              {t(key)}
+            </Button>
+          ))}
+        </div>
+      </div>
 
       <div aria-live="polite" className="flex flex-col gap-3">
         {messages.length === 0 && !pending ? <p className="text-sm text-text-muted">{t("ai.emptyChat")}</p> : null}
         {messages.map((m) => (
-          <div
-            key={m.id}
-            className={`rounded-lg p-3 text-sm ${m.role === "user" ? "bg-bg text-text" : "border border-border bg-surface text-text"}`}
-          >
-            <p className="mb-1 text-xs font-medium text-text-muted">
+          <div key={m.id} className={`flex flex-col gap-1 ${m.role === "user" ? "items-end" : "items-start"}`}>
+            <p className="flex items-center gap-1.5 text-xs font-medium text-text-muted">
+              {m.role === "user" ? (
+                <User className="h-3.5 w-3.5" aria-hidden="true" />
+              ) : (
+                <Sparkles className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
+              )}
               {m.role === "user" ? t("ai.roleUser") : t("ai.roleAssistant")}
+              {m.role === "assistant" ? <span>· {t("common.simulatedResponse")}</span> : null}
             </p>
-            <p className="whitespace-pre-line">{m.content}</p>
-            {m.role === "assistant" ? <p className="mt-2 text-xs text-text-muted">{t("common.simulatedResponse")}</p> : null}
+            <div
+              className={`max-w-[90%] rounded-xl border border-border p-3 text-sm text-text ${
+                m.role === "user" ? "bg-surface-muted" : "bg-accent-soft"
+              }`}
+            >
+              <p className="whitespace-pre-line leading-6">{m.content}</p>
+            </div>
           </div>
         ))}
       </div>
 
       {pending ? (
-        <div className="rounded-lg bg-bg p-3 text-sm text-text">
-          <p className="mb-1 text-xs font-medium text-text-muted">{t("ai.roleUser")}</p>
-          <p className="whitespace-pre-line">{pending}</p>
+        <div className="flex flex-col items-end gap-1">
+          <p className="text-xs font-medium text-text-muted">{t("ai.roleUser")}</p>
+          <div className="max-w-[90%] rounded-xl border border-border bg-surface-muted p-3 text-sm text-text">
+            <p className="whitespace-pre-line leading-6">{pending}</p>
+          </div>
         </div>
       ) : null}
       {isLoading ? (
@@ -90,27 +114,16 @@ export function ChatSection({ conversation, onExchange }: Props) {
         </div>
       ) : null}
       {error && !isLoading ? (
-        <div role="alert" className="flex flex-col items-start gap-2 text-sm text-danger">
-          <p>{t("ai.askError")}</p>
+        <div role="alert" className="flex flex-col items-start gap-2 rounded-lg bg-danger-soft p-4 text-sm text-danger">
+          <p className="flex items-center gap-2 font-medium"><AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />{t("ai.askError")}</p>
           <Button variant="secondary" onClick={() => void handleRetry()}>
             {t("common.retry")}
           </Button>
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-2">
-        <p className="text-xs font-medium text-text-muted">{t("ai.suggestedTitle")}</p>
-        <div className="flex flex-wrap gap-2">
-          {SUGGESTED.map((key) => (
-            <Button key={key} variant="secondary" disabled={isLoading} onClick={() => void submit(t(key))}>
-              {t(key)}
-            </Button>
-          ))}
-        </div>
-      </div>
-
       <form
-        className="flex flex-col gap-2"
+        className="flex flex-col gap-2 border-t border-border pt-4"
         onSubmit={(e) => {
           e.preventDefault();
           void submit(text);

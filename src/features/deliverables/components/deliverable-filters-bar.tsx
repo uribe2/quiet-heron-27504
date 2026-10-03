@@ -17,7 +17,7 @@ export function DeliverableFiltersBar({
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-wrap items-end gap-3">
+    <div className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-surface p-4">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="deliverable-project-filter" className="text-xs font-medium text-text-muted">
           {t("deliverables.filterProjectLabel")}

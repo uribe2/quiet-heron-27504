@@ -12,13 +12,18 @@ export function ResetDataSection({ onReset }: { onReset: () => void }) {
 
   return (
     <>
-      <FormSection title={t("settings.sectionData")} description={t("settings.resetDescription")}>
-        <div>
-          <Button variant="destructive" onClick={() => setOpen(true)}>
-            {t("settings.resetDemoData")}
-          </Button>
-        </div>
-      </FormSection>
+      <div className="rounded-xl border border-danger/30 bg-danger-soft p-6">
+        <FormSection
+          title={t("settings.sectionData")}
+          description={t("settings.resetDescription")}
+        >
+          <div>
+            <Button variant="destructive" onClick={() => setOpen(true)}>
+              {t("settings.resetDemoData")}
+            </Button>
+          </div>
+        </FormSection>
+      </div>
       <ConfirmDialog
         isOpen={open}
         onClose={() => setOpen(false)}

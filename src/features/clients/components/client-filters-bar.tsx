@@ -15,7 +15,7 @@ export function ClientFiltersBar({ filters, tags, onChange }: ClientFiltersBarPr
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-wrap items-end gap-3">
+    <div className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-surface p-4">
       <div className="min-w-[240px] flex-1">
         <SearchInput
           label={t("clients.searchPlaceholder")}
@@ -23,15 +23,15 @@ export function ClientFiltersBar({ filters, tags, onChange }: ClientFiltersBarPr
           onChange={(e) => onChange({ ...filters, search: e.target.value })}
         />
       </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="client-status-filter" className="text-xs font-medium text-text-muted">
+      <div className="flex w-full flex-col gap-1.5 sm:w-auto">
+        <label htmlFor="client-status-filter" className="label-eyebrow">
           {t("clients.filterStatusLabel")}
         </label>
         <Select
           id="client-status-filter"
           value={filters.status ?? "active"}
           onChange={(e) => onChange({ ...filters, status: e.target.value as ClientFilters["status"] })}
-          className="w-40"
+          className="w-full sm:w-44"
         >
           <option value="all">{t("clients.filterStatusAll")}</option>
           <option value="active">{t("clients.filterStatusActive")}</option>
@@ -39,15 +39,15 @@ export function ClientFiltersBar({ filters, tags, onChange }: ClientFiltersBarPr
         </Select>
       </div>
       {tags.length > 0 ? (
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="client-tag-filter" className="text-xs font-medium text-text-muted">
+        <div className="flex w-full flex-col gap-1.5 sm:w-auto">
+          <label htmlFor="client-tag-filter" className="label-eyebrow">
             {t("clients.filterTagLabel")}
           </label>
           <Select
             id="client-tag-filter"
             value={filters.tag ?? ""}
             onChange={(e) => onChange({ ...filters, tag: e.target.value || undefined })}
-            className="w-40"
+            className="w-full sm:w-44"
           >
             <option value="">{t("clients.filterStatusAll")}</option>
             {tags.map((tag) => (

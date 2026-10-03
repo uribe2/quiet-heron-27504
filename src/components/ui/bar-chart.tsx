@@ -47,8 +47,8 @@ export function BarChart({
   const barW = Math.min(36, (groupW - 12) / Math.max(1, series.length));
 
   return (
-    <figure className="rounded-xl border border-border bg-surface p-4">
-      <figcaption className="mb-3 text-sm font-semibold text-text">{title}</figcaption>
+    <figure className="rounded-xl border border-border bg-surface p-6">
+      <figcaption className="mb-3 text-base font-semibold tracking-tight text-text">{title}</figcaption>
       <ul className="mb-3 flex flex-wrap gap-4 text-xs text-text">
         {series.map((s) => (
           <li key={s.key} className="flex items-center gap-2">
@@ -82,12 +82,23 @@ export function BarChart({
               <line x1="0" y1="0" x2="0" y2="6" stroke="var(--accent)" strokeWidth="3" />
             </pattern>
           </defs>
+          {[0.25, 0.5, 0.75].map((f) => (
+            <line
+              key={f}
+              x1={PAD.left}
+              x2={WIDTH - PAD.right}
+              y1={PAD.top + plotH * (1 - f)}
+              y2={PAD.top + plotH * (1 - f)}
+              stroke="var(--border)"
+              strokeDasharray="3 4"
+            />
+          ))}
           <line
             x1={PAD.left}
             x2={WIDTH - PAD.right}
             y1={PAD.top + plotH}
             y2={PAD.top + plotH}
-            stroke="var(--border)"
+            stroke="var(--border-strong)"
           />
           {categories.map((c, ci) => {
             const groupX = PAD.left + ci * groupW;
@@ -115,7 +126,7 @@ export function BarChart({
                         />
                       ) : null}
                       {value > 0 ? (
-                        <text x={x + barW / 2} y={y - 5} textAnchor="middle" fontSize="11" fill="var(--text)">
+                        <text x={x + barW / 2} y={y - 5} textAnchor="middle" fontSize="11" fontWeight="500" fill="var(--text)">
                           {formatValue(value)}
                         </text>
                       ) : null}

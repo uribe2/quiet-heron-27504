@@ -17,7 +17,7 @@ interface Props {
   onChange: (filters: DocumentFilters) => void;
 }
 
-const labelClass = "text-xs font-medium text-text-muted";
+const labelClass = "label-eyebrow";
 
 function FilterSelect({
   id,
@@ -33,11 +33,11 @@ function FilterSelect({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex min-w-0 flex-col gap-1.5">
       <label htmlFor={id} className={labelClass}>
         {label}
       </label>
-      <Select id={id} className="w-40" value={value} onChange={(e) => onChange(e.target.value)}>
+      <Select id={id} className="w-full" value={value} onChange={(e) => onChange(e.target.value)}>
         {children}
       </Select>
     </div>
@@ -49,8 +49,8 @@ export function DocumentFiltersBar({ filters, clients, projects, tags, onChange 
   const all = <option value="">{t("documents.filterAll")}</option>;
 
   return (
-    <div className="flex flex-wrap items-end gap-3">
-      <div className="w-64">
+    <div className="grid w-full grid-cols-1 items-end gap-3 rounded-xl border border-border bg-surface p-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="min-w-0">
         <SearchInput
           id="document-search"
           label={t("documents.searchPlaceholder")}

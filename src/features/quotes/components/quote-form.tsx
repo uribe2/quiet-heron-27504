@@ -92,7 +92,7 @@ export function QuoteForm({ quote, clients, readOnly = false, initialValues, onS
         {itemsError ? <p className="text-xs text-danger">{t("validation.required")}</p> : null}
         <div className="flex flex-col gap-3">
           {fields.map((field, index) => (
-            <div key={field.id} className="grid grid-cols-[1fr_80px_120px_40px] items-end gap-2">
+            <div key={field.id} className="grid grid-cols-[1fr_80px_120px_44px] items-end gap-2">
               <FormField label={t("quotes.itemDescription")}>
                 <Input {...register(`items.${index}.description`)} disabled={readOnly} />
               </FormField>
@@ -142,7 +142,7 @@ export function QuoteForm({ quote, clients, readOnly = false, initialValues, onS
           </Button>
         ) : null}
 
-        <div className="flex flex-col gap-1 rounded-lg bg-bg p-4 text-sm">
+        <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface-muted p-4 text-sm tabular-nums">
           <div className="flex justify-between">
             <span className="text-text-muted">{t("quotes.subtotal")}</span>
             <span>{formatMoney(totals.subtotalCents)}</span>

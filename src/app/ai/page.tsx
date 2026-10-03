@@ -18,10 +18,8 @@ export default function AiPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title={t("ai.title")} description={t("ai.description")} />
-      <SummarySection />
-      <ActionsSection />
-      <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <ChatSection conversation={active} onExchange={(q, a) => setActiveId(addExchange(activeId, q, a))} />
+      <div className="grid items-start gap-6 lg:grid-cols-[20rem_minmax(0,1fr)]">
+        <div className="order-2 lg:order-1">
         <HistoryList
           conversations={conversations}
           activeId={activeId}
@@ -34,6 +32,12 @@ export default function AiPage() {
             if (c.id === activeId) setActiveId(null);
           }}
         />
+        </div>
+        <div className="order-1 flex min-w-0 flex-col gap-6 lg:order-2">
+          <SummarySection />
+          <ChatSection conversation={active} onExchange={(q, a) => setActiveId(addExchange(activeId, q, a))} />
+          <ActionsSection />
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import { Building2, FolderOpen } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { useTranslation } from "@/context/i18n-context";
 import { Button } from "@/components/ui/button";
@@ -17,7 +18,7 @@ interface Props {
 }
 
 const openClass =
-  "text-left font-medium text-text hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus";
+  "text-left font-medium text-link hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus";
 
 export function DocumentList({ documents, view, onOpen, onDelete }: Props) {
   const { data } = useData();
@@ -40,19 +41,37 @@ export function DocumentList({ documents, view, onOpen, onDelete }: Props) {
           const m = meta(doc);
           return (
             <li key={doc.id}>
-              <Card className="flex h-full flex-col gap-2 p-4">
-                <span className="flex items-center gap-1 text-sm text-text-muted">
-                  <m.Icon className="h-4 w-4" aria-hidden="true" />
-                  {m.kind}
-                </span>
-                <button type="button" className={openClass} onClick={() => onOpen(doc)}>
+              <Card className="flex h-full flex-col gap-3 p-5 transition-shadow hover:shadow-[var(--shadow-level-1)]">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded bg-neutral-soft px-2 py-1 text-xs font-medium text-text-muted">
+                    <m.Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                    {m.kind}
+                  </span>
+                  <span className="text-xs text-text-muted">{m.date}</span>
+                </div>
+                <button type="button" className={`${openClass} text-base font-semibold`} onClick={() => onOpen(doc)}>
                   {doc.name}
                 </button>
-                <p className="text-sm text-text-muted">
-                  {m.client} · {m.project}
-                </p>
-                <p className="text-xs text-text-muted">{m.date}</p>
-                <div className="mt-auto flex justify-end">
+                <div className="flex flex-col gap-1 text-sm text-text-muted">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Building2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span className="truncate">{m.client}</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <FolderOpen className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span className="truncate">{m.project}</span>
+                  </span>
+                </div>
+                {doc.tags.length > 0 ? (
+                  <ul className="flex flex-wrap gap-1.5">
+                    {doc.tags.map((tag) => (
+                      <li key={tag} className="rounded bg-neutral-soft px-2 py-0.5 text-xs font-medium text-text-muted">
+                        #{tag}
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+                <div className="mt-auto flex justify-end border-t border-border pt-3">
                   <Button variant="link" onClick={() => onDelete(doc)}>
                     {t("documents.deleteAction")}
                     <span className="sr-only"> {doc.name}</span>

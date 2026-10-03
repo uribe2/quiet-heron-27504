@@ -81,7 +81,7 @@ export default function PipelinePage() {
 
   return (
     <div>
-      <PageHeader title={t("pipeline.title")} actions={<Button onClick={openCreate}>{t("pipeline.createButton")}</Button>} />
+      <PageHeader title={t("pipeline.title")} description={t("pipeline.subtitle")} actions={<Button onClick={openCreate}>{t("pipeline.createButton")}</Button>} />
 
       {pipeline.opportunities.length === 0 ? (
         <EmptyState
@@ -92,16 +92,16 @@ export default function PipelinePage() {
         />
       ) : (
         <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-end gap-4">
+          <div className="flex flex-wrap items-end gap-4 rounded-xl border border-border bg-surface p-4">
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="pipeline-client-filter" className="text-xs font-medium text-text-muted">
+              <label htmlFor="pipeline-client-filter" className="label-eyebrow">
                 {t("pipeline.filterClientLabel")}
               </label>
               <Select
                 id="pipeline-client-filter"
                 value={clientId}
                 onChange={(e) => setClientId(e.target.value)}
-                className="w-48"
+                className="w-full sm:w-56"
               >
                 <option value="">{t("pipeline.filterClientAll")}</option>
                 {activeClients.map((c) => (

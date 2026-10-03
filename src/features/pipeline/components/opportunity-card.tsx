@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, FilePlus2, Pencil, Trash2, Trophy, XCircle } from "lucide-react";
 import { useTranslation } from "@/context/i18n-context";
 import { IconButton } from "@/components/ui/icon-button";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,8 @@ export function OpportunityCard({
   const vars = { title: o.title };
 
   return (
-    <li className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-3">
+    <li className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-4 transition-shadow hover:shadow-[var(--shadow-level-1)]">
+      <p className="label-eyebrow !text-accent">{clientName}</p>
       <div className="flex items-start justify-between gap-2">
         <p className="text-sm font-semibold text-text">{o.title}</p>
         {!isOpen ? (
@@ -52,13 +53,14 @@ export function OpportunityCard({
           />
         ) : null}
       </div>
-      <p className="text-xs text-text-muted">{clientName}</p>
-      <p className="text-base font-semibold text-text">{formatMoney(o.estimatedValueCents)}</p>
-      <p className="text-xs text-text-muted">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <p className="text-lg font-semibold text-text">{formatMoney(o.estimatedValueCents)}</p>
+        <p className="text-xs text-text-muted">
         {o.expectedCloseDate
           ? t("pipeline.expectedClose", { date: formatDate(o.expectedCloseDate) })
           : t("pipeline.noExpectedClose")}
-      </p>
+        </p>
+      </div>
       {o.status === "lost" && o.lostReason ? (
         <p className="text-xs text-danger">
           {t("pipeline.lostReasonLabel", { reason: t(reasonLabelKey(o.lostReason)) })}
@@ -66,15 +68,12 @@ export function OpportunityCard({
       ) : null}
 
       {isOpen ? (
-        <div className="flex items-center gap-1">
-          <IconButton aria-label={t("pipeline.movePrev", vars)} disabled={!prev} onClick={() => prev && onMove(o, prev)}>
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          </IconButton>
+        <>
           <Select
             aria-label={t("pipeline.moveToLabel", vars)}
             value=""
             onChange={(e) => e.target.value && onMove(o, e.target.value as OpportunityStage)}
-            className="min-w-0 flex-1"
+            className="w-full"
           >
             <option value="">{t("pipeline.moveTo")}</option>
             {OPPORTUNITY_STAGES.filter((s) => s !== o.stage).map((s) => (
@@ -83,36 +82,66 @@ export function OpportunityCard({
               </option>
             ))}
           </Select>
-          <IconButton aria-label={t("pipeline.moveNext", vars)} disabled={!next} onClick={() => next && onMove(o, next)}>
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </IconButton>
-        </div>
-      ) : null}
+          <Button
+            variant="secondary"
+            className="w-full"
+            aria-label={t("pipeline.createQuoteLabel", vars)}
+            onClick={() => onCreateQuote(o)}
+          >
+            <FilePlus2 className="h-4 w-4" aria-hidden="true" />
+            {t("pipeline.createQuoteAction")}
+          </Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="secondary"
+              className="px-2 text-success"
+              aria-label={t("pipeline.markWonLabel", vars)}
+              onClick={() => onWon(o)}
+            >
+              <Trophy className="h-4 w-4" aria-hidden="true" />
+              {t("pipeline.wonShort")}
+            </Button>
+            <Button
+              variant="secondary"
+              className="px-2 text-danger"
+              aria-label={t("pipeline.markLostLabel", vars)}
+              onClick={() => onLost(o)}
+            >
+              <XCircle className="h-4 w-4" aria-hidden="true" />
+              {t("pipeline.lostShort")}
+            </Button>
+          </div>
+        </>
+      ) : (
+        <Button variant="secondary" className="w-full" onClick={() => onReopen(o)}>
+          {t("pipeline.reopenAction")}
+        </Button>
+      )}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="-mx-1 flex items-center border-t border-border pt-2">
         {isOpen ? (
           <>
-            <Button variant="secondary" aria-label={t("pipeline.createQuoteLabel", vars)} onClick={() => onCreateQuote(o)}>
-              {t("pipeline.createQuoteAction")}
-            </Button>
-            <Button variant="secondary" onClick={() => onWon(o)}>
-              {t("pipeline.markWon")}
-            </Button>
-            <Button variant="secondary" onClick={() => onLost(o)}>
-              {t("pipeline.markLost")}
-            </Button>
-            <Button variant="link" aria-label={t("pipeline.editLabel", vars)} onClick={() => onEdit(o)}>
-              {t("pipeline.editAction")}
-            </Button>
+            <IconButton aria-label={t("pipeline.movePrev", vars)} disabled={!prev} onClick={() => prev && onMove(o, prev)}>
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            </IconButton>
+            <IconButton aria-label={t("pipeline.moveNext", vars)} disabled={!next} onClick={() => next && onMove(o, next)}>
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </IconButton>
           </>
-        ) : (
-          <Button variant="secondary" onClick={() => onReopen(o)}>
-            {t("pipeline.reopenAction")}
-          </Button>
-        )}
-        <Button variant="destructive" aria-label={t("pipeline.deleteLabel", vars)} onClick={() => onDelete(o)}>
-          {t("pipeline.deleteAction")}
-        </Button>
+        ) : null}
+        <div className="flex-1" />
+        {isOpen ? (
+          <IconButton aria-label={t("pipeline.editLabel", vars)} onClick={() => onEdit(o)}>
+            <Pencil className="h-4 w-4" aria-hidden="true" />
+          </IconButton>
+        ) : null}
+        <IconButton
+          aria-label={t("pipeline.deleteLabel", vars)}
+          onClick={() => onDelete(o)}
+          className="hover:bg-danger-soft hover:text-danger"
+        >
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
+        </IconButton>
       </div>
     </li>
   );

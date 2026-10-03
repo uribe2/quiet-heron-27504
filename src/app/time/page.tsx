@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Clock } from "lucide-react";
+import { BadgeCheck, Clock, DollarSign } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { useTranslation } from "@/context/i18n-context";
 import { useToast } from "@/context/toast-context";
@@ -70,9 +70,21 @@ export default function TimePage() {
       <EntryFiltersBar filters={filters} projects={data.projects} onChange={setFilters} />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <KpiCard label={t("time.summaryTotal")} value={formatDuration(summary.totalMinutes)} />
-        <KpiCard label={t("time.summaryBillable")} value={formatDuration(summary.billableMinutes)} />
-        <KpiCard label={t("time.summaryAmount")} value={formatMoney(summary.billableAmountCents)} />
+        <KpiCard
+          label={t("time.summaryTotal")}
+          value={formatDuration(summary.totalMinutes)}
+          icon={<Clock className="h-5 w-5" aria-hidden="true" />}
+        />
+        <KpiCard
+          label={t("time.summaryBillable")}
+          value={formatDuration(summary.billableMinutes)}
+          icon={<BadgeCheck className="h-5 w-5" aria-hidden="true" />}
+        />
+        <KpiCard
+          label={t("time.summaryAmount")}
+          value={formatMoney(summary.billableAmountCents)}
+          icon={<DollarSign className="h-5 w-5" aria-hidden="true" />}
+        />
       </div>
 
       {entries.length === 0 ? (

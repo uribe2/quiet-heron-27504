@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Play, Square } from "lucide-react";
+import { Clock, Play, Square } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { useTranslation } from "@/context/i18n-context";
 import { useToast } from "@/context/toast-context";
@@ -33,11 +33,14 @@ export function TimerCard() {
     const project = data.projects.find((p) => p.id === runningTimer.projectId);
     const deliverable = data.deliverables.find((d) => d.id === runningTimer.deliverableId);
     return (
-      <Card>
+      <Card className="border-l-4 border-l-accent">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-text-muted">{t("time.runningLabel")}</p>
-            <p className="text-base font-semibold text-text">
+            <p className="label-eyebrow flex items-center gap-2 text-link">
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-accent" />
+              {t("time.runningLabel")}
+            </p>
+            <p className="mt-1 text-base font-semibold text-text">
               {project?.name ?? t("time.unknownProject")}
               {deliverable ? ` · ${deliverable.title}` : ""}
             </p>
@@ -45,7 +48,7 @@ export function TimerCard() {
               <p className="text-sm text-text-muted">{runningTimer.description}</p>
             ) : null}
           </div>
-          <p role="timer" aria-label={t("time.elapsedLabel")} className="font-mono text-3xl font-semibold text-text">
+          <p role="timer" aria-label={t("time.elapsedLabel")} className="text-3xl font-semibold tracking-tight text-text">
             {formatElapsed(elapsedMs)}
           </p>
           <div className="flex gap-3">
@@ -82,7 +85,8 @@ export function TimerCard() {
 
   return (
     <Card>
-      <h2 className="mb-4 text-base font-semibold text-text">{t("time.timerTitle")}</h2>
+      <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-text">
+        <Clock className="h-4 w-4 text-text-muted" aria-hidden="true" />{t("time.timerTitle")}</h2>
       {activeProjects.length === 0 ? (
         <p className="text-sm text-text-muted">{t("time.noActiveProjects")}</p>
       ) : (

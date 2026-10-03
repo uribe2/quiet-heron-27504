@@ -79,6 +79,7 @@ function InteractionsContent() {
     <div>
       <PageHeader
         title={t("interactions.title")}
+        description={t("interactions.subtitle")}
         actions={<Button onClick={() => openCreate()}>{t("interactions.createButton")}</Button>}
       />
 

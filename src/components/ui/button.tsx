@@ -10,12 +10,12 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    "bg-text text-white hover:bg-text/90 active:bg-text/80 disabled:bg-text/40",
+    "min-h-11 px-4 bg-accent text-white hover:bg-accent-hover active:bg-accent-hover disabled:bg-accent/40",
   secondary:
-    "bg-surface text-text border border-border hover:bg-bg active:bg-border disabled:text-text-muted",
-  link: "bg-transparent text-link underline hover:text-link/80 p-0",
+    "min-h-11 px-4 bg-surface text-text border border-border-strong hover:bg-surface-muted active:bg-neutral-soft disabled:text-text-disabled",
+  link: "min-h-11 px-1 bg-transparent text-link hover:underline underline-offset-2",
   destructive:
-    "bg-danger text-white hover:bg-danger/90 active:bg-danger/80 disabled:bg-danger/40",
+    "min-h-11 px-4 bg-danger text-white hover:bg-danger-hover active:bg-danger-hover disabled:bg-danger/40",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -27,7 +27,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         disabled={disabled || isLoading}
-        className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 disabled:cursor-not-allowed ${variantClasses[variant]} ${className}`}
+        className={`inline-flex items-center justify-center gap-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 disabled:cursor-not-allowed ${variantClasses[variant]} ${className}`}
         {...props}
       >
         {isLoading ? <Spinner size={16} /> : null}

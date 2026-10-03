@@ -1,5 +1,6 @@
 "use client";
 
+import { AlertTriangle } from "lucide-react";
 import type { Deliverable, DeliverableStatus } from "../types";
 import { GROUP_ORDER, groupDeliverablesByDue, type DeliverableGroups } from "../logic";
 import { useTranslation } from "@/context/i18n-context";
@@ -34,11 +35,12 @@ export function DeliverableList({ deliverables, onStatusChange, onEdit, onDelete
           <section key={key} aria-labelledby={`deliverables-group-${key}`}>
             <h2
               id={`deliverables-group-${key}`}
-              className={`mb-2 text-sm font-semibold uppercase tracking-wide ${key === "overdue" ? "text-danger" : "text-text-muted"}`}
+              className={`mb-3 flex items-center gap-2 text-base font-semibold ${key === "overdue" ? "text-danger" : "text-text"}`}
             >
+              {key === "overdue" ? <AlertTriangle className="h-4 w-4" aria-hidden="true" /> : null}
               {t(`deliverables.${groupLabel[key]}`)} ({groups[key].length})
             </h2>
-            <ul className="flex flex-col gap-2">
+            <ul className="flex flex-col gap-3">
               {groups[key].map((d) => (
                 <li key={d.id}>
                   <DeliverableItem

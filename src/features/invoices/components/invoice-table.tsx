@@ -33,7 +33,7 @@ export function InvoiceTable({
         <TableRow>
           <TableHeaderCell>{t("invoices.columnNumber")}</TableHeaderCell>
           <TableHeaderCell>{t("invoices.columnClient")}</TableHeaderCell>
-          <TableHeaderCell>{t("invoices.columnAmount")}</TableHeaderCell>
+          <TableHeaderCell className="text-right">{t("invoices.columnAmount")}</TableHeaderCell>
           <TableHeaderCell>{t("invoices.columnIssue")}</TableHeaderCell>
           <TableHeaderCell>{t("invoices.columnDue")}</TableHeaderCell>
           <TableHeaderCell>{t("invoices.columnStatus")}</TableHeaderCell>
@@ -55,7 +55,7 @@ export function InvoiceTable({
                 </Link>
               </TableCell>
               <TableCell>{client?.name ?? "—"}</TableCell>
-              <TableCell>{formatMoney(f.totalCents)}</TableCell>
+              <TableCell className="text-right font-medium tabular-nums">{formatMoney(f.totalCents)}</TableCell>
               <TableCell>{formatDate(invoice.issueDate)}</TableCell>
               <TableCell>{formatDate(invoice.dueDate)}</TableCell>
               <TableCell>

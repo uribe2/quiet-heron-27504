@@ -16,7 +16,7 @@ export function ProjectFiltersBar({ filters, clients, onChange }: ProjectFilters
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-wrap items-end gap-3">
+    <div className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-surface p-4">
       <div className="min-w-[240px] flex-1">
         <SearchInput
           label={t("projects.searchPlaceholder")}

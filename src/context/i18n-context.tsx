@@ -45,6 +45,7 @@ interface I18nContextValue {
   setLang: (lang: Lang) => void;
   formatMoney: (cents: number) => string;
   formatDate: (date: string, options?: Intl.DateTimeFormatOptions) => string;
+  formatNumber: (value: number, maxDecimals?: number) => string;
 }
 
 const I18nContext = createContext<I18nContextValue | null>(null);
@@ -86,8 +87,14 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     [lang],
   );
 
+  const formatNumber = useCallback(
+    (value: number, maxDecimals = 1) =>
+      new Intl.NumberFormat(locales[lang], { maximumFractionDigits: maxDecimals }).format(value),
+    [lang],
+  );
+
   return (
-    <I18nContext.Provider value={{ t, lang, setLang, formatMoney, formatDate }}>
+    <I18nContext.Provider value={{ t, lang, setLang, formatMoney, formatDate, formatNumber }}>
       {children}
     </I18nContext.Provider>
   );

@@ -23,8 +23,10 @@ export function DashboardPage() {
       />
       <AlertStrip alerts={alerts} />
       <KpiSection />
-      <div className="grid gap-8 lg:grid-cols-2">
-        <ActiveProjects />
+      <div className="grid items-start gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <ActiveProjects />
+        </div>
         <AiActionCard />
       </div>
       <PipelinePreview />

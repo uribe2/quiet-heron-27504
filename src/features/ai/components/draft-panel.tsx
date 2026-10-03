@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PenLine, AlertTriangle } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { useTranslation } from "@/context/i18n-context";
 import { useToast } from "@/context/toast-context";
@@ -66,9 +67,12 @@ export function DraftPanel({ initialClientId, initialGoal }: { initialClientId: 
   }
 
   return (
-    <Card className="flex flex-col gap-3">
-      <h2 className="text-lg font-semibold text-text">{t("ai.draftTitle")}</h2>
-      <label className="flex flex-col gap-1 text-sm text-text">
+    <Card className="flex flex-col gap-4">
+      <h2 className="flex items-center gap-2 text-xl font-semibold text-text">
+        <PenLine className="h-5 w-5 text-accent" aria-hidden="true" />
+        {t("ai.draftTitle")}
+      </h2>
+      <label className="flex flex-col gap-1.5 text-sm font-medium text-text">
         {t("ai.draftClient")}
         <Select value={clientId} onChange={(e) => setClientId(e.target.value)}>
           <option value="" disabled />
@@ -79,15 +83,15 @@ export function DraftPanel({ initialClientId, initialGoal }: { initialClientId: 
           ))}
         </Select>
       </label>
-      <div className="grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1 text-sm text-text">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <label className="flex flex-col gap-1.5 text-sm font-medium text-text">
           {t("ai.draftChannel")}
           <Select value={channel} onChange={(e) => setChannel(e.target.value as DraftChannel)}>
             <option value="email">{t("ai.channelEmail")}</option>
             <option value="whatsapp">{t("ai.channelWhatsapp")}</option>
           </Select>
         </label>
-        <label className="flex flex-col gap-1 text-sm text-text">
+        <label className="flex flex-col gap-1.5 text-sm font-medium text-text">
           {t("ai.draftTone")}
           <Select value={tone} onChange={(e) => setTone(e.target.value as DraftTone)}>
             <option value="formal">{t("ai.toneFormal")}</option>
@@ -95,7 +99,7 @@ export function DraftPanel({ initialClientId, initialGoal }: { initialClientId: 
           </Select>
         </label>
       </div>
-      <label className="flex flex-col gap-1 text-sm text-text">
+      <label className="flex flex-col gap-1.5 text-sm font-medium text-text">
         {t("ai.draftGoal")}
         <Input value={goal} placeholder={t("ai.draftGoalPlaceholder")} onChange={(e) => setGoal(e.target.value)} />
       </label>
@@ -112,8 +116,8 @@ export function DraftPanel({ initialClientId, initialGoal }: { initialClientId: 
         </div>
       ) : null}
       {error && !isLoading ? (
-        <div role="alert" className="flex flex-col items-start gap-2 text-sm text-danger">
-          <p>{t("ai.draftError")}</p>
+        <div role="alert" className="flex flex-col items-start gap-2 rounded-lg bg-danger-soft p-4 text-sm text-danger">
+          <p className="flex items-center gap-2 font-medium"><AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />{t("ai.draftError")}</p>
           <Button variant="secondary" onClick={() => void handleRetry()}>
             {t("common.retry")}
           </Button>
@@ -125,8 +129,8 @@ export function DraftPanel({ initialClientId, initialGoal }: { initialClientId: 
             {t("ai.draftTextLabel")}
           </label>
           <Textarea id="ai-draft-text" rows={8} value={text} onChange={(e) => setText(e.target.value)} />
-          <p className="text-xs text-text-muted">{t("common.simulatedResponse")}</p>
-          <div className="flex flex-wrap gap-2">
+          <p className="text-xs font-medium text-text-muted">{t("common.simulatedResponse")}</p>
+          <div className="flex flex-wrap gap-2 border-t border-border pt-3">
             <Button variant="secondary" onClick={() => void copy()}>
               {t("ai.copy")}
             </Button>

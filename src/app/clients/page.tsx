@@ -66,6 +66,7 @@ export default function ClientsPage() {
     <div>
       <PageHeader
         title={t("clients.title")}
+        description={t("clients.subtitle")}
         actions={<Button onClick={openCreate}>{t("clients.createButton")}</Button>}
       />
 

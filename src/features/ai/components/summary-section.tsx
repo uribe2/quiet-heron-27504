@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Sparkles, HeartPulse, AlertTriangle } from "lucide-react";
 import { useData } from "@/context/data-context";
 import { useTranslation } from "@/context/i18n-context";
 import { getToday } from "@/lib/dates";
@@ -43,12 +43,15 @@ export function SummarySection() {
   }, [data]);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="flex flex-col gap-6">
       <Card className="flex flex-col gap-4">
         <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 className="text-lg font-semibold text-text">{t("ai.summaryTitle")}</h2>
+          <h2 className="flex items-center gap-2 text-xl font-semibold text-text">
+            <Sparkles className="h-5 w-5 text-accent" aria-hidden="true" />
+            {t("ai.summaryTitle")}
+          </h2>
           <div className="flex items-end gap-2">
-            <label className="flex flex-col gap-1 text-xs text-text-muted">
+            <label className="label-eyebrow flex flex-col gap-1">
               {t("ai.periodLabel")}
               <Select value={period} onChange={(e) => setPeriod(e.target.value)} className="w-32">
                 <option value="7">{t("ai.period7")}</option>
@@ -69,28 +72,31 @@ export function SummarySection() {
             <Skeleton className="h-4 w-3/4" />
           </div>
         ) : error ? (
-          <div role="alert" className="flex flex-col items-start gap-2 text-sm text-danger">
-            <p>{t("ai.summaryError")}</p>
+          <div role="alert" className="flex flex-col items-start gap-2 rounded-lg bg-danger-soft p-4 text-sm text-danger">
+            <p className="flex items-center gap-2 font-medium"><AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />{t("ai.summaryError")}</p>
             <Button variant="secondary" onClick={() => void retry()}>
               {t("common.retry")}
             </Button>
           </div>
         ) : (
-          <div aria-live="polite" className="flex flex-col gap-2">
-            <p className="whitespace-pre-line text-sm text-text">{result}</p>
-            {result ? <p className="text-xs text-text-muted">{t("common.simulatedResponse")}</p> : null}
+          <div aria-live="polite" className="flex flex-col gap-3 rounded-lg bg-surface-muted p-4">
+            <p className="whitespace-pre-line text-sm leading-6 text-text">{result}</p>
+            {result ? <p className="text-xs font-medium text-text-muted">{t("common.simulatedResponse")}</p> : null}
           </div>
         )}
       </Card>
 
       <Card className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold text-text">{t("ai.healthTitle")}</h2>
+        <h2 className="flex items-center gap-2 text-xl font-semibold text-text">
+          <HeartPulse className="h-5 w-5 text-accent" aria-hidden="true" />
+          {t("ai.healthTitle")}
+        </h2>
         {health.length === 0 ? (
           <p className="text-sm text-text-muted">{t("ai.healthNoClients")}</p>
         ) : (
           <ul className="flex flex-col gap-3">
             {health.map(({ client, health: h }) => (
-              <li key={client.id}>
+              <li key={client.id} className="rounded-lg border border-border px-4 py-3">
                 <ProgressBar
                   percent={h.score}
                   tone={TONES[h.label]}

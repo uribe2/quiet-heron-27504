@@ -13,14 +13,14 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-4 pb-6">
+    <div className="flex flex-col gap-3 pb-8">
       {breadcrumbs ? <Breadcrumbs items={breadcrumbs} /> : null}
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-text">{title}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-text sm:text-[30px] sm:leading-9">{title}</h1>
           {description ? <p className="mt-1 text-sm text-text-muted">{description}</p> : null}
         </div>
-        {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+        {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
       </div>
     </div>
   );

@@ -39,18 +39,19 @@ export function ProjectDeliverables({ projectId }: { projectId: string }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-end">
-        <Button onClick={openCreate}>{t("deliverables.addToProject")}</Button>
+        <Button variant="secondary" onClick={openCreate}>{t("deliverables.addToProject")}</Button>
       </div>
       {items.length === 0 ? (
-        <p className="text-sm text-text-muted">{t("deliverables.projectEmpty")}</p>
+        <p className="rounded-xl border border-dashed border-border-strong bg-surface p-6 text-center text-sm text-text-muted">{t("deliverables.projectEmpty")}</p>
       ) : (
-        <ol className="flex flex-col gap-2">
+        <ol className="flex flex-col gap-3">
           {items.map((d, index) => (
             <li key={d.id}>
               <DeliverableItem
                 deliverable={d}
                 showProject={false}
                 reorder={{
+                  position: index + 1,
                   canMoveUp: index > 0,
                   canMoveDown: index < items.length - 1,
                   onUp: () => moveUp(d),

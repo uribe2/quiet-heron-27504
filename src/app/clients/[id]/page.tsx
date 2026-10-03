@@ -52,29 +52,58 @@ export default function ClientDetailPage() {
         actions={<Button onClick={drawer.open}>{t("clients.editAction")}</Button>}
       />
 
-      <Card className="mb-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-3">
-            <div>
-              <p className="text-text-muted">{t("clients.fieldEmail")}</p>
-              <p className="text-text">{client.email ?? "—"}</p>
-            </div>
-            <div>
-              <p className="text-text-muted">{t("clients.fieldPhone")}</p>
-              <p className="text-text">{client.phone ?? "—"}</p>
-            </div>
-            <div>
-              <p className="text-text-muted">{t("clients.columnContact")}</p>
-              <p className="text-text">{primary?.name ?? t("clients.noContactsYet")}</p>
+      <div className="mb-6 grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span
+                aria-hidden="true"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-sm font-semibold text-white"
+              >
+                {client.name
+                  .split(/\s+/)
+                  .filter(Boolean)
+                  .slice(0, 2)
+                  .map((w) => w.charAt(0).toUpperCase())
+                  .join("")}
+              </span>
+              <StatusBadge
+                label={client.status === "active" ? t("clients.filterStatusActive") : t("clients.filterStatusArchived")}
+                tone={client.status === "active" ? "success" : "neutral"}
+              />
             </div>
           </div>
-          <StatusBadge
-            label={client.status === "active" ? t("clients.filterStatusActive") : t("clients.filterStatusArchived")}
-            tone={client.status === "active" ? "success" : "neutral"}
-          />
-        </div>
-        <ClientHealth clientId={activeClient.id} />
-      </Card>
+          <dl className="mt-5 grid grid-cols-1 gap-x-6 gap-y-4 text-sm sm:grid-cols-2">
+            <div>
+              <dt className="label-eyebrow">{t("clients.fieldEmail")}</dt>
+              <dd className="mt-1 break-words text-text">{client.email ?? "—"}</dd>
+            </div>
+            <div>
+              <dt className="label-eyebrow">{t("clients.fieldPhone")}</dt>
+              <dd className="mt-1 text-text">{client.phone ?? "—"}</dd>
+            </div>
+            <div>
+              <dt className="label-eyebrow">{t("clients.columnContact")}</dt>
+              <dd className="mt-1 text-text">{primary?.name ?? t("clients.noContactsYet")}</dd>
+            </div>
+            <div>
+              <dt className="label-eyebrow">{t("clients.fieldWebsite")}</dt>
+              <dd className="mt-1 break-words text-text">{client.website ?? "—"}</dd>
+            </div>
+          </dl>
+          {client.tags.length > 0 ? (
+            <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border pt-4">
+              <span className="label-eyebrow">{t("clients.columnTags")}</span>
+              {client.tags.map((tag) => (
+                <StatusBadge key={tag} label={tag} tone="neutral" />
+              ))}
+            </div>
+          ) : null}
+        </Card>
+        <Card>
+          <ClientHealth clientId={activeClient.id} />
+        </Card>
+      </div>
 
       <Tabs
         value={tab}

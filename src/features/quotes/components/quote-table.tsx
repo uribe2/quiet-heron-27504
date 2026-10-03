@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, CircleCheck, CircleX, Clock, Pencil, Send } from "lucide-react";
 import type { Quote } from "../types";
 import { isQuoteUnanswered, sortQuotes, type QuoteSortKey, type SortDirection } from "../logic";
 import { useTranslation } from "@/context/i18n-context";
@@ -12,6 +12,13 @@ import { Table, TableHead, TableBody, TableRow, TableHeaderCell, TableCell } fro
 import { StatusBadge } from "@/components/ui/status-badge";
 
 const statusTone = { draft: "neutral", sent: "accent", accepted: "success", rejected: "danger" } as const;
+
+const statusIcon = {
+  draft: <Pencil className="h-3.5 w-3.5" aria-hidden="true" />,
+  sent: <Send className="h-3.5 w-3.5" aria-hidden="true" />,
+  accepted: <CircleCheck className="h-3.5 w-3.5" aria-hidden="true" />,
+  rejected: <CircleX className="h-3.5 w-3.5" aria-hidden="true" />,
+};
 
 const columns: { key: QuoteSortKey; labelKey: string }[] = [
   { key: "number", labelKey: "quotes.columnNumber" },
@@ -54,12 +61,13 @@ export function QuoteTable({ quotes, onOpen }: { quotes: Quote[]; onOpen: (quote
             return (
               <TableHeaderCell
                 key={col.key}
+                className={col.key === "total" ? "text-right" : ""}
                 aria-sort={active ? (direction === "asc" ? "ascending" : "descending") : "none"}
               >
                 <button
                   type="button"
                   onClick={() => toggleSort(col.key)}
-                  className="inline-flex min-h-11 items-center gap-1 uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                  className="inline-flex min-h-11 items-center gap-1 rounded uppercase focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
                 >
                   {t(col.labelKey)}
                   {active ? <Icon className="h-3.5 w-3.5" aria-hidden="true" /> : null}
@@ -87,11 +95,21 @@ export function QuoteTable({ quotes, onOpen }: { quotes: Quote[]; onOpen: (quote
               </TableCell>
               <TableCell>{clientNames[quote.clientId] ?? "—"}</TableCell>
               <TableCell>{quote.title}</TableCell>
-              <TableCell>{formatMoney(totals.totalCents)}</TableCell>
+              <TableCell className="text-right font-medium tabular-nums">{formatMoney(totals.totalCents)}</TableCell>
               <TableCell>
                 <div className="flex flex-col gap-1">
-                  <StatusBadge label={t(`quotes.status${capitalize(quote.status)}`)} tone={statusTone[quote.status]} />
-                  {unanswered ? <StatusBadge label={t("quotes.unansweredLabel")} tone="warning" /> : null}
+                  <StatusBadge
+                    label={t(`quotes.status${capitalize(quote.status)}`)}
+                    tone={statusTone[quote.status]}
+                    icon={statusIcon[quote.status]}
+                  />
+                  {unanswered ? (
+                    <StatusBadge
+                      label={t("quotes.unansweredLabel")}
+                      tone="warning"
+                      icon={<Clock className="h-3.5 w-3.5" aria-hidden="true" />}
+                    />
+                  ) : null}
                 </div>
               </TableCell>
               <TableCell>{formatDate(quote.updatedAt)}</TableCell>

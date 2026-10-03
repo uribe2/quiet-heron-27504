@@ -19,63 +19,86 @@ const statusTone = {
 
 export function ProjectList({ projects }: { projects: Project[] }) {
   const { data } = useData();
-  const { t } = useTranslation();
+  const { t, formatDate, formatNumber } = useTranslation();
   const grouped = groupProjectsByClient(projects);
 
   return (
     <div className="flex flex-col gap-8">
       {Array.from(grouped.entries()).map(([clientId, clientProjects]) => {
         const client = data.clients.find((c) => c.id === clientId);
+        const clientName = client?.name ?? clientId;
         return (
-          <div key={clientId}>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-muted">
-              {client?.name ?? clientId}
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2">
+          <section key={clientId} aria-label={clientName}>
+            <div className="mb-3 flex items-center gap-3">
+              <span
+                aria-hidden="true"
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-soft text-xs font-semibold text-link"
+              >
+                {initials(clientName)}
+              </span>
+              <h2 className="text-base font-semibold text-text">{clientName}</h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
               {clientProjects.map((project) => {
                 const deliverables = data.deliverables.filter((d) => d.projectId === project.id);
                 const timeEntries = data.timeEntries.filter((t) => t.projectId === project.id);
                 const progress = getProjectProgress(project, deliverables, timeEntries);
                 const currentMilestone = deliverables.find((d) => d.status !== "delivered");
                 return (
-                  <Card key={project.id}>
-                    <div className="flex items-start justify-between gap-2">
-                      <Link
-                        href={`/projects/${project.id}`}
-                        className="font-medium text-link underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-                      >
-                        {project.name}
-                      </Link>
+                  <Card key={project.id} className="flex flex-col gap-4 p-5">
+                    <div className="flex flex-wrap items-center gap-2">
                       <StatusBadge label={t(`projects.status${capitalize(project.status)}`)} tone={statusTone[project.status]} />
+                      {progress.isDelayed ? (
+                        <StatusBadge
+                          label={t("projects.delayedLabel")}
+                          tone="danger"
+                          icon={<AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />}
+                        />
+                      ) : null}
                     </div>
-                    <p className="mt-1 text-sm text-text-muted">
-                      {currentMilestone ? currentMilestone.title : "—"}
-                    </p>
-                    <p className="mt-1 text-xs text-text-muted">{project.dueDate}</p>
-                    <div className="mt-3">
-                      <ProgressBar percent={progress.percent} />
-                    </div>
-                    <p className="mt-2 text-xs text-text-muted">
+                    <Link
+                      href={`/projects/${project.id}`}
+                      className="-mt-2 rounded text-base font-semibold text-text underline-offset-2 hover:text-link hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2"
+                    >
+                      {project.name}
+                    </Link>
+                    <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 rounded-lg bg-surface-muted p-3 text-sm">
+                      <dt className="text-text-muted">{t("projects.currentMilestone")}</dt>
+                      <dd className="text-right font-medium text-text">{currentMilestone ? currentMilestone.title : "—"}</dd>
+                      <dt className="text-text-muted">{t("projects.fieldDueDate")}</dt>
+                      <dd className={`text-right font-medium ${progress.isDelayed ? "text-danger" : "text-text"}`}>
+                        {formatDate(project.dueDate)}
+                      </dd>
+                    </dl>
+                    <ProgressBar
+                      percent={progress.percent}
+                      label={t("projects.summaryProgress")}
+                      tone={progress.isDelayed ? "danger" : "accent"}
+                    />
+                    <p className="text-sm text-text-muted">
                       {t("projects.hoursLabel", {
-                        logged: progress.hoursLogged.toFixed(1),
-                        estimated: String(project.estimatedHours ?? 0),
+                        logged: formatNumber(progress.hoursLogged),
+                        estimated: formatNumber(project.estimatedHours ?? 0),
                       })}
                     </p>
-                    {progress.isDelayed ? (
-                      <p className="mt-2 flex items-center gap-1 text-xs font-medium text-danger">
-                        <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
-                        {t("projects.delayedLabel")}
-                      </p>
-                    ) : null}
                   </Card>
                 );
               })}
             </div>
-          </div>
+          </section>
         );
       })}
     </div>
   );
+}
+
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w.charAt(0).toUpperCase())
+    .join("");
 }
 
 function capitalize(value: string): string {

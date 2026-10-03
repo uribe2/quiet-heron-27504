@@ -48,20 +48,25 @@ export function FollowUpsSection({
   return (
     <Card>
       <section aria-labelledby="follow-ups-title">
-        <h2 id="follow-ups-title" className="mb-3 flex items-center gap-2 text-base font-semibold text-text">
-          <CalendarClock className="h-5 w-5" aria-hidden="true" />
+        <h2 id="follow-ups-title" className="mb-4 flex items-center gap-2 text-lg font-semibold text-text">
+          <CalendarClock className="h-5 w-5 text-accent" aria-hidden="true" />
           {t("interactions.followUpsTitle")}
         </h2>
         {pending.length === 0 ? (
           <p className="text-sm text-text-muted">{t("interactions.followUpsEmpty")}</p>
         ) : (
-          <ul className="flex flex-col divide-y divide-border">
+          <ul className="flex flex-col gap-3">
             {pending.map((item) => {
               const overdue = isFollowUpOverdue(item, today);
               const editing = reschedulingId === item.id;
               const dateId = `reschedule-${item.id}`;
               return (
-                <li key={item.id} className="flex flex-col gap-2 py-3">
+                <li
+                  key={item.id}
+                  className={`flex flex-col gap-2 rounded-lg border p-4 ${
+                    overdue ? "border-danger/30 bg-danger-soft" : "border-border bg-surface-muted"
+                  }`}
+                >
                   <div className="flex flex-wrap items-center gap-2 text-sm">
                     <span className="font-semibold text-text">{clientNames[item.clientId] ?? "—"}</span>
                     <span className="text-text-muted">{t(channelKey(item.channel))}</span>

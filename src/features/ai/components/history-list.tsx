@@ -35,10 +35,11 @@ export function HistoryList({ conversations, activeId, onOpen, onNew, onRename, 
   }
 
   return (
-    <Card className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-text">{t("ai.historyTitle")}</h2>
-        <Button variant="secondary" onClick={onNew}>
+    <Card className="flex flex-col gap-3 p-4">
+      <div className="flex flex-col gap-3">
+        <h2 className="label-eyebrow text-text-muted">{t("ai.historyTitle")}</h2>
+        <Button variant="secondary" onClick={onNew} className="w-full">
+
           <Plus className="h-4 w-4" aria-hidden="true" />
           {t("ai.newConversation")}
         </Button>
@@ -50,7 +51,7 @@ export function HistoryList({ conversations, activeId, onOpen, onNew, onRename, 
           {conversations.map((c) => (
             <li
               key={c.id}
-              className={`flex items-center gap-1 rounded-lg px-2 ${c.id === activeId ? "bg-accent-soft" : ""}`}
+              className={`flex items-center gap-1 rounded-lg px-2 ${c.id === activeId ? "bg-accent-soft ring-1 ring-border" : "hover:bg-surface-muted"}`}
             >
               {editingId === c.id ? (
                 <Input

@@ -16,6 +16,15 @@ interface ClientTableProps {
   onDeleteRequest: (client: Client) => void;
 }
 
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w.charAt(0).toUpperCase())
+    .join("");
+}
+
 export function ClientTable({ clients, onEdit, onArchive, onDeleteRequest }: ClientTableProps) {
   const { t } = useTranslation();
 
@@ -39,20 +48,28 @@ export function ClientTable({ clients, onEdit, onArchive, onDeleteRequest }: Cli
           return (
             <TableRow key={client.id}>
               <TableCell>
-                <Link
-                  href={`/clients/${client.id}`}
-                  className="font-medium text-link underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-                >
-                  {client.name}
-                </Link>
+                <div className="flex items-center gap-3">
+                  <span
+                    aria-hidden="true"
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent-soft text-xs font-semibold text-accent"
+                  >
+                    {initials(client.name)}
+                  </span>
+                  <Link
+                    href={`/clients/${client.id}`}
+                    className="font-medium text-link underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
+                  >
+                    {client.name}
+                  </Link>
+                </div>
               </TableCell>
-              <TableCell>{primary?.name ?? "—"}</TableCell>
-              <TableCell>{client.email ?? "—"}</TableCell>
+              <TableCell className="text-text-muted">{primary?.name ?? "—"}</TableCell>
+              <TableCell className="text-text-muted">{client.email ?? "—"}</TableCell>
               <TableCell>
                 {client.tags.length > 0 ? (
                   <div className="flex flex-wrap gap-1">
                     {client.tags.map((tag) => (
-                      <StatusBadge key={tag} label={tag} tone="accent" />
+                      <StatusBadge key={tag} label={tag} tone="neutral" />
                     ))}
                   </div>
                 ) : (

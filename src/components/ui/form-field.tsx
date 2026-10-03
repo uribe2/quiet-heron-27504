@@ -1,4 +1,5 @@
 import { cloneElement, isValidElement, useId, type ReactElement, type ReactNode } from "react";
+import { AlertCircle } from "lucide-react";
 
 interface FormFieldProps {
   label: string;
@@ -35,8 +36,8 @@ export function FormField({ label, error, hint, required, children }: FormFieldP
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} className="flex items-center gap-1 text-xs text-danger">
-          <span aria-hidden="true">⚠</span> {error}
+        <p id={errorId} className="flex items-start gap-1 text-xs text-danger">
+          <AlertCircle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" /> {error}
         </p>
       ) : null}
     </div>

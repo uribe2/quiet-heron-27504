@@ -1,5 +1,6 @@
 import { Search } from "lucide-react";
 import { forwardRef, type InputHTMLAttributes } from "react";
+import { fieldClasses } from "./input";
 
 export const SearchInput = forwardRef<
   HTMLInputElement,
@@ -20,7 +21,7 @@ export const SearchInput = forwardRef<
         id={inputId}
         type="search"
         placeholder={label}
-        className={`h-11 w-full rounded-lg border border-border bg-surface pl-9 pr-3 text-sm text-text placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus ${className}`}
+        className={`h-11 pl-9 pr-3 ${fieldClasses} ${className}`}
         {...props}
       />
     </div>

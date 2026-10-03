@@ -71,7 +71,7 @@ export function DocumentDrawer({
         {isOpen ? (
           <div className="flex flex-col gap-6">
             {doc ? (
-              <div className="rounded-lg border border-border p-3 text-sm">
+              <div className="rounded-lg border border-border bg-surface-muted p-3 text-sm">
                 {doc.source.type === "link" ? (
                   <a
                     href={doc.source.url}

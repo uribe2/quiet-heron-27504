@@ -1,30 +1,47 @@
 @import "tailwindcss";
 
+/* Warm Editorial Executive — see docs/design/warm_editorial_executive/DESIGN.md */
 :root {
-  --bg: #f8fafc;
+  --bg: #f7f7f5;
   --surface: #ffffff;
-  --border: #e2e8f0;
-  --text: #0f172a;
-  --text-muted: #475569;
-  --accent: #06b6d4;
-  --accent-soft: #ecfeff;
-  --link: #0e7490;
+  --surface-muted: #fafaf9;
+  --border: #e7e5e4;
+  --border-strong: #d6d3d1;
+  --text: #1c1917;
+  --text-muted: #57534e;
+  --text-disabled: #a8a29e;
+  --accent: #0f766e;
+  --accent-hover: #115e59;
+  --accent-bright: #2dd4bf;
+  --accent-soft: #f0fdfa;
+  --link: #0f766e;
   --success: #15803d;
   --success-soft: #f0fdf4;
   --warning: #b45309;
   --warning-soft: #fffbeb;
   --danger: #b91c1c;
+  --danger-hover: #991b1b;
   --danger-soft: #fef2f2;
-  --focus: #0e7490;
+  --neutral-soft: #f5f5f4;
+  --focus: #0f766e;
+  --sidebar: #18181b;
+  --sidebar-active: #27272a;
+  --sidebar-text: #e4e4e7;
+  --sidebar-muted: #a1a1aa;
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-text: var(--text);
   --color-text-muted: var(--text-muted);
+  --color-text-disabled: var(--text-disabled);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-bright: var(--accent-bright);
   --color-accent-soft: var(--accent-soft);
   --color-link: var(--link);
   --color-success: var(--success);
@@ -32,14 +49,23 @@
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
   --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
   --color-danger-soft: var(--danger-soft);
+  --color-neutral-soft: var(--neutral-soft);
   --color-focus: var(--focus);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-active: var(--sidebar-active);
+  --color-sidebar-text: var(--sidebar-text);
+  --color-sidebar-muted: var(--sidebar-muted);
   --font-sans: var(--font-inter);
+  --shadow-level-1: 0 1px 2px 0 rgb(28 25 23 / 0.06);
+  --shadow-level-2: 0 8px 24px -4px rgb(28 25 23 / 0.12), 0 2px 6px -1px rgb(28 25 23 / 0.04);
 }
 
 body {
   background: var(--bg);
   color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
 * {
@@ -52,5 +78,14 @@ body {
 }
 
 dialog::backdrop {
-  background: rgb(15 23 42 / 0.4);
+  background: rgb(24 24 27 / 0.4);
+}
+
+/* Eyebrow label: sidebar groups, metadata keys, table headers */
+.label-eyebrow {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }

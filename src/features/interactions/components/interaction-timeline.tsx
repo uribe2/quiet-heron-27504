@@ -39,29 +39,36 @@ export function InteractionTimeline({
     <div className="flex flex-col gap-6" aria-label={t("interactions.timelineLabel")} role="region">
       {groups.map((group) => (
         <section key={group.day} aria-labelledby={`day-${group.day}`}>
-          <h3 id={`day-${group.day}`} className="mb-3 text-sm font-semibold capitalize text-text-muted">
-            {formatDate(group.day, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+          <h3
+            id={`day-${group.day}`}
+            className="mb-3 flex items-center gap-3 text-sm font-semibold capitalize text-text"
+          >
+            <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-accent" />
+            <span className="shrink-0">
+              {formatDate(group.day, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+            </span>
+            <span aria-hidden="true" className="h-px flex-1 bg-border" />
           </h3>
-          <ul className="flex flex-col gap-3 border-l-2 border-border pl-4">
+          <ul className="ml-1 flex flex-col gap-3 border-l-2 border-border pl-4 sm:pl-6">
             {group.items.map((item) => {
               const Icon = CHANNEL_ICONS[item.channel];
               const time = new Date(item.occurredAt).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
               return (
-                <li key={item.id} className="rounded-xl border border-border bg-surface p-4">
+                <li key={item.id} className="rounded-xl border border-border bg-surface p-4 transition-shadow hover:shadow-[var(--shadow-level-1)]">
                   <div className="flex flex-wrap items-center gap-2 text-sm">
                     <span className="font-semibold text-text">{clientNames[item.clientId] ?? "—"}</span>
-                    <span className="inline-flex items-center gap-1 text-text-muted">
+                    <span className="ml-auto inline-flex items-center gap-1.5 rounded-md bg-surface-muted px-2 py-1 text-xs text-text-muted">
                       <Icon className="h-4 w-4" aria-hidden="true" />
                       {t(channelKey(item.channel))}
                     </span>
-                    <span className="text-text-muted">{time}</span>
+                    <span className="text-xs text-text-muted">{time}</span>
                     <StatusBadge
                       label={t("interactions.sentimentLabel", { value: t(sentimentKey(item.sentiment)) })}
                       tone={SENTIMENT_TONES[item.sentiment]}
                     />
                   </div>
-                  <p className="mt-2 text-sm text-text">{item.summary}</p>
-                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                  <p className="mt-3 text-sm leading-6 text-text">{item.summary}</p>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
                     <p className="text-xs text-text-muted">
                       {item.followUpDate
                         ? item.followUpDone

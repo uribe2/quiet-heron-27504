@@ -27,16 +27,16 @@ export function InteractionFiltersBar({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-wrap items-end gap-3">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="interaction-client-filter" className="text-xs font-medium text-text-muted">
+    <div className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-surface p-4">
+      <div className="flex w-full flex-col gap-1.5 sm:w-auto">
+        <label htmlFor="interaction-client-filter" className="label-eyebrow">
           {t("interactions.filterClientLabel")}
         </label>
         <Select
           id="interaction-client-filter"
           value={filters.clientId ?? ""}
           onChange={(e) => onChange({ ...filters, clientId: e.target.value || undefined })}
-          className="w-44"
+          className="w-full sm:w-48"
         >
           <option value="">{t("interactions.filterClientAll")}</option>
           {clients.map((c) => (
@@ -46,15 +46,15 @@ export function InteractionFiltersBar({
           ))}
         </Select>
       </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="interaction-channel-filter" className="text-xs font-medium text-text-muted">
+      <div className="flex w-full flex-col gap-1.5 sm:w-auto">
+        <label htmlFor="interaction-channel-filter" className="label-eyebrow">
           {t("interactions.filterChannelLabel")}
         </label>
         <Select
           id="interaction-channel-filter"
           value={filters.channel ?? ""}
           onChange={(e) => onChange({ ...filters, channel: (e.target.value || undefined) as InteractionChannel | undefined })}
-          className="w-44"
+          className="w-full sm:w-48"
         >
           <option value="">{t("interactions.filterChannelAll")}</option>
           {CHANNELS.map((c) => (
@@ -64,15 +64,15 @@ export function InteractionFiltersBar({
           ))}
         </Select>
       </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="interaction-sentiment-filter" className="text-xs font-medium text-text-muted">
+      <div className="flex w-full flex-col gap-1.5 sm:w-auto">
+        <label htmlFor="interaction-sentiment-filter" className="label-eyebrow">
           {t("interactions.filterSentimentLabel")}
         </label>
         <Select
           id="interaction-sentiment-filter"
           value={filters.sentiment ?? ""}
           onChange={(e) => onChange({ ...filters, sentiment: (e.target.value || undefined) as Sentiment | undefined })}
-          className="w-44"
+          className="w-full sm:w-48"
         >
           <option value="">{t("interactions.filterSentimentAll")}</option>
           {SENTIMENTS.map((s) => (

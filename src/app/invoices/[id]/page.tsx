@@ -20,6 +20,7 @@ import { useDisclosure } from "@/hooks/use-disclosure";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -170,26 +171,35 @@ export default function InvoiceDetailPage() {
       <Card className="mb-6">
         <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-5">
           <div>
-            <p className="text-text-muted">{t("invoices.columnStatus")}</p>
+            <p className="label-eyebrow mb-1 text-text-muted">{t("invoices.columnStatus")}</p>
             <InvoiceStatusBadge status={financials.displayStatus} />
           </div>
           <div>
-            <p className="text-text-muted">{t("invoices.fieldClient")}</p>
-            <p className="text-text">{client?.name ?? "—"}</p>
+            <p className="label-eyebrow mb-1 text-text-muted">{t("invoices.fieldClient")}</p>
+            <p className="font-medium text-text">{client?.name ?? "—"}</p>
           </div>
           <div>
-            <p className="text-text-muted">{t("invoices.fieldProject")}</p>
-            <p className="text-text">{project?.name ?? "—"}</p>
+            <p className="label-eyebrow mb-1 text-text-muted">{t("invoices.fieldProject")}</p>
+            <p className="font-medium text-text">{project?.name ?? "—"}</p>
           </div>
           <div>
-            <p className="text-text-muted">{t("invoices.columnIssue")}</p>
-            <p className="text-text">{formatDate(current.issueDate)}</p>
+            <p className="label-eyebrow mb-1 text-text-muted">{t("invoices.columnIssue")}</p>
+            <p className="font-medium text-text">{formatDate(current.issueDate)}</p>
           </div>
           <div>
-            <p className="text-text-muted">{t("invoices.columnDue")}</p>
-            <p className="text-text">{formatDate(current.dueDate)}</p>
+            <p className="label-eyebrow mb-1 text-text-muted">{t("invoices.columnDue")}</p>
+            <p className="font-medium text-text">{formatDate(current.dueDate)}</p>
           </div>
         </div>
+        {financials.totalCents > 0 ? (
+          <div className="mt-5 rounded-lg bg-surface-muted p-4">
+            <ProgressBar
+              percent={(financials.paidCents / financials.totalCents) * 100}
+              label={`${t("invoices.paidLabel")}: ${formatMoney(financials.paidCents)} / ${formatMoney(financials.totalCents)}`}
+              tone="success"
+            />
+          </div>
+        ) : null}
         {current.notes ? <p className="mt-4 text-sm text-text-muted">{current.notes}</p> : null}
         {!canEditNotesAndDue(current) ? (
           <p className="mt-4 text-xs text-text-muted">{t("invoices.readOnlyNotice")}</p>
@@ -210,29 +220,29 @@ export default function InvoiceDetailPage() {
         />
       ) : null}
 
-      <h2 className="mb-3 text-lg font-semibold text-text">{t("invoices.sectionItems")}</h2>
+      <h2 className="mb-3 text-xl font-semibold tracking-tight text-text">{t("invoices.sectionItems")}</h2>
       <Table>
         <TableHead>
           <TableRow>
             <TableHeaderCell>{t("invoices.itemDescription")}</TableHeaderCell>
-            <TableHeaderCell>{t("invoices.itemQuantity")}</TableHeaderCell>
-            <TableHeaderCell>{t("invoices.itemUnitPrice")}</TableHeaderCell>
-            <TableHeaderCell>{t("invoices.total")}</TableHeaderCell>
+            <TableHeaderCell className="text-right">{t("invoices.itemQuantity")}</TableHeaderCell>
+            <TableHeaderCell className="text-right">{t("invoices.itemUnitPrice")}</TableHeaderCell>
+            <TableHeaderCell className="text-right">{t("invoices.total")}</TableHeaderCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {current.items.map((item) => (
             <TableRow key={item.id}>
               <TableCell>{item.description}</TableCell>
-              <TableCell>{item.quantity}</TableCell>
-              <TableCell>{formatMoney(item.unitPriceCents)}</TableCell>
-              <TableCell>{formatMoney(Math.round(item.quantity * item.unitPriceCents))}</TableCell>
+              <TableCell className="text-right tabular-nums">{item.quantity}</TableCell>
+              <TableCell className="text-right tabular-nums">{formatMoney(item.unitPriceCents)}</TableCell>
+              <TableCell className="text-right font-medium tabular-nums">{formatMoney(Math.round(item.quantity * item.unitPriceCents))}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
 
-      <div className="mt-4 ml-auto flex max-w-xs flex-col gap-1 rounded-lg bg-bg p-4 text-sm">
+      <div className="mt-4 ml-auto flex max-w-sm flex-col gap-2 rounded-xl border border-border bg-surface p-5 text-sm tabular-nums">
         <div className="flex justify-between">
           <span className="text-text-muted">{t("invoices.subtotal")}</span>
           <span>{formatMoney(totals.subtotalCents)}</span>
@@ -251,25 +261,29 @@ export default function InvoiceDetailPage() {
           <span className="text-text-muted">{t("invoices.paidLabel")}</span>
           <span>{formatMoney(financials.paidCents)}</span>
         </div>
-        <div className="flex justify-between font-semibold text-text">
+        <div
+          className={`-mx-2 mt-1 flex items-center justify-between rounded-lg px-3 py-2 text-base font-semibold ${
+            financials.balanceCents > 0 ? "bg-warning-soft text-warning" : "bg-success-soft text-success"
+          }`}
+        >
           <span>{t("invoices.balanceLabel")}</span>
           <span>{formatMoney(financials.balanceCents)}</span>
         </div>
       </div>
 
-      <h2 className="mb-3 mt-8 text-lg font-semibold text-text">{t("invoices.paymentsTitle")}</h2>
+      <h2 className="mb-3 mt-8 text-xl font-semibold tracking-tight text-text">{t("invoices.paymentsTitle")}</h2>
       {payments.length === 0 ? (
         <p className="text-sm text-text-muted">{t("invoices.noPayments")}</p>
       ) : (
         <ul className="flex flex-col gap-2">
           {payments.map((p) => (
-            <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3 text-sm">
+            <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-surface p-3 pl-4 text-sm">
               <span>
                 {formatDate(p.date)} — {t(methodKeys[p.method])}
                 {p.reference ? ` (${t("invoices.paymentReference", { reference: p.reference })})` : ""}
               </span>
               <span className="flex items-center gap-1">
-                <span className="font-medium">{formatMoney(p.amountCents)}</span>
+                <span className="font-medium tabular-nums text-success">{formatMoney(p.amountCents)}</span>
                 {current.status === "sent" || current.status === "paid" ? (
                   <>
                     <IconButton

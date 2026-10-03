@@ -1,6 +1,6 @@
 "use client";
 
-import { Lock, Pencil, Trash2 } from "lucide-react";
+import { Clock, Lock, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "@/context/i18n-context";
 import { IconButton } from "@/components/ui/icon-button";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -22,23 +22,27 @@ export function EntryList({ groups, projects, onEdit, onDelete }: EntryListProps
     <div className="flex flex-col gap-6">
       {groups.map((group) => (
         <section key={group.date} aria-labelledby={`day-${group.date}`}>
-          <div className="mb-2 flex items-baseline justify-between">
-            <h3 id={`day-${group.date}`} className="text-sm font-semibold text-text">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h3 id={`day-${group.date}`} className="text-base font-semibold text-text">
               {formatDate(group.date, { weekday: "long", day: "numeric", month: "long" })}
             </h3>
             <p className="text-sm text-text-muted">
               {t("time.dayTotal", { duration: formatDuration(group.totalMinutes) })}
             </p>
           </div>
-          <ul className="divide-y divide-border rounded-xl border border-border bg-surface">
+          <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
             {group.entries.map((entry) => {
               const project = projects.find((p) => p.id === entry.projectId);
               const locked = Boolean(entry.invoiceId);
               return (
-                <li key={entry.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+                <li
+                  key={entry.id}
+                  className={`flex min-h-[52px] flex-wrap items-center gap-3 px-4 py-3 hover:bg-surface-muted ${locked ? "bg-surface-muted" : ""}`}
+                >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-text">{entry.description}</p>
-                    <p className="text-xs text-text-muted">
+                    <p className="flex items-center gap-1 text-xs text-text-muted">
+                      <Clock className="h-3 w-3" aria-hidden="true" />
                       {project?.name ?? t("time.unknownProject")} · {toTimeInput(entry.startedAt)}–
                       {toTimeInput(entry.endedAt)}
                     </p>
@@ -54,7 +58,7 @@ export function EntryList({ groups, projects, onEdit, onDelete }: EntryListProps
                     tone={entry.billable ? "accent" : "neutral"}
                   />
                   {locked ? <StatusBadge label={t("time.invoicedBadge")} tone="success" /> : null}
-                  <span className="w-16 text-right text-sm font-medium text-text">
+                  <span className="w-16 text-right text-sm font-semibold text-text">
                     {formatDuration(entry.durationMinutes)}
                   </span>
                   {!locked ? (

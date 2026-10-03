@@ -153,7 +153,7 @@ export function InvoiceForm({ invoice, clients, onSubmit, onDirtyChange }: Invoi
           {t("invoices.addItem")}
         </Button>
 
-        <div className="flex flex-col gap-1 rounded-lg bg-bg p-4 text-sm">
+        <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface-muted p-4 text-sm tabular-nums">
           <div className="flex justify-between">
             <span className="text-text-muted">{t("invoices.subtotal")}</span>
             <span>{formatMoney(totals.subtotalCents)}</span>

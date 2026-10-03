@@ -21,9 +21,6 @@ export function InvoiceStatusBadge({ status }: { status: InvoiceDisplayStatus })
   const { t } = useTranslation();
   const { key, tone, Icon } = config[status];
   return (
-    <span className="inline-flex items-center gap-1">
-      <Icon className="h-4 w-4 text-text-muted" aria-hidden="true" />
-      <StatusBadge label={t(key)} tone={tone} />
-    </span>
+    <StatusBadge label={t(key)} tone={tone} icon={<Icon className="h-3.5 w-3.5" aria-hidden="true" />} />
   );
 }

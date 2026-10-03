@@ -116,7 +116,7 @@ export function DocumentForm({ document: doc, clients, projects, onSubmit, onDir
                   {file.fileName} · {formatFileSize(file.sizeBytes)}
                 </p>
               ) : null}
-              <p className="rounded-lg bg-accent-soft p-3 text-xs text-text">{t("documents.storageNote")}</p>
+              <p className="rounded-lg border border-border bg-accent-soft p-3 text-xs text-text">{t("documents.storageNote")}</p>
             </>
           )}
         </FormSection>
@@ -135,7 +135,7 @@ export function DocumentForm({ document: doc, clients, projects, onSubmit, onDir
             ))}
           </Select>
         </FormField>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField label={t("documents.fieldClient")}>
             <Select {...register("clientId")}>
               <option value="">—</option>

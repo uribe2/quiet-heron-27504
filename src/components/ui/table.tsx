@@ -2,14 +2,14 @@ import type { HTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from "react";
 
 export function Table({ className = "", ...props }: HTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-border">
+    <div className="overflow-x-auto rounded-xl border border-border bg-surface">
       <table className={`w-full border-collapse text-sm ${className}`} {...props} />
     </div>
   );
 }
 
 export function TableHead(props: HTMLAttributes<HTMLTableSectionElement>) {
-  return <thead className="bg-bg text-left text-text-muted" {...props} />;
+  return <thead className="border-b border-border bg-surface-muted text-left text-text-muted" {...props} />;
 }
 
 export function TableBody(props: HTMLAttributes<HTMLTableSectionElement>) {
@@ -17,13 +17,13 @@ export function TableBody(props: HTMLAttributes<HTMLTableSectionElement>) {
 }
 
 export function TableRow(props: HTMLAttributes<HTMLTableRowElement>) {
-  return <tr className="hover:bg-bg/60" {...props} />;
+  return <tr className="transition-colors hover:bg-surface-muted" {...props} />;
 }
 
 export function TableHeaderCell({ className = "", ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
-  return <th className={`px-4 py-3 text-xs font-semibold uppercase tracking-wide ${className}`} {...props} />;
+  return <th className={`label-eyebrow h-11 px-4 font-medium ${className}`} {...props} />;
 }
 
 export function TableCell({ className = "", ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={`px-4 py-3 text-text ${className}`} {...props} />;
+  return <td className={`h-[52px] px-4 text-text ${className}`} {...props} />;
 }

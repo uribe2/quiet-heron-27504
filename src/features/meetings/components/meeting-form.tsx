@@ -2,6 +2,7 @@
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertTriangle } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { buildMeetingSchema, type MeetingFormValues } from "../schema";
 import type { Meeting } from "../types";
@@ -86,7 +87,7 @@ export function MeetingForm({ meeting, clients, projects, onSubmit, onDirtyChang
         <FormField label={t("meetings.fieldTitle")} required>
           <Input {...register("title")} />
         </FormField>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField label={t("meetings.fieldClient")}>
             <Select {...register("clientId")}>
               <option value="">—</option>
@@ -111,7 +112,7 @@ export function MeetingForm({ meeting, clients, projects, onSubmit, onDirtyChang
       </FormSection>
 
       <FormSection title={t("meetings.fieldStartsAt")}>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField
             label={t("meetings.fieldStartsAt")}
             required
@@ -127,7 +128,7 @@ export function MeetingForm({ meeting, clients, projects, onSubmit, onDirtyChang
             <Input type="number" min={15} max={480} step={15} {...register("durationMinutes", { valueAsNumber: true })} />
           </FormField>
         </div>
-        {overlaps.length > 0 ? <p className="text-xs text-warning">{t("meetings.overlapWarning")}</p> : null}
+        {overlaps.length > 0 ? <p role="status" className="flex items-center gap-1.5 rounded-lg bg-warning-soft px-3 py-2 text-xs font-medium text-warning"><AlertTriangle className="h-4 w-4 shrink-0" aria-hidden="true" />{t("meetings.overlapWarning")}</p> : null}
         <FormField label={t("meetings.fieldMode")} required>
           <Select {...register("mode")}>
             <option value="in_person">{t("meetings.modeInPerson")}</option>

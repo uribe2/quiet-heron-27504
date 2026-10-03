@@ -51,7 +51,7 @@ export default function PaymentsPage() {
 
       <IncomeSummary />
 
-      <div className="mb-4 flex flex-wrap items-end gap-3">
+      <div className="mb-4 flex flex-wrap items-end gap-3 rounded-xl border border-border bg-surface p-4">
         <div className="flex flex-col gap-1.5">
           <label htmlFor="payment-client-filter" className="text-xs font-medium text-text-muted">
             {t("payments.filterClient")}
@@ -118,9 +118,9 @@ export default function PaymentsPage() {
         ) : null}
       </div>
 
-      <Card className="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <Card className="mb-4 flex flex-wrap items-center justify-between gap-2 !border-accent/20 !bg-accent-soft !p-4">
         <span className="text-sm text-text-muted">{t("payments.totalCollected")}</span>
-        <span className="text-lg font-semibold text-text" aria-live="polite">
+        <span className="text-lg font-semibold tabular-nums text-accent" aria-live="polite">
           {formatMoney(sumPayments(filtered))}{" "}
           <span className="text-sm font-normal text-text-muted">
             ({t("payments.totalCount", { count: String(filtered.length) })})

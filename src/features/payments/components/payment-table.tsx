@@ -34,7 +34,7 @@ export function PaymentTable({
           <TableHeaderCell>{t("payments.columnDate")}</TableHeaderCell>
           <TableHeaderCell>{t("payments.columnInvoice")}</TableHeaderCell>
           <TableHeaderCell>{t("payments.columnClient")}</TableHeaderCell>
-          <TableHeaderCell>{t("payments.columnAmount")}</TableHeaderCell>
+          <TableHeaderCell className="text-right">{t("payments.columnAmount")}</TableHeaderCell>
           <TableHeaderCell>{t("payments.columnMethod")}</TableHeaderCell>
           <TableHeaderCell>{t("payments.columnActions")}</TableHeaderCell>
         </TableRow>
@@ -60,7 +60,7 @@ export function PaymentTable({
                 )}
               </TableCell>
               <TableCell>{client?.name ?? "—"}</TableCell>
-              <TableCell>{formatMoney(p.amountCents)}</TableCell>
+              <TableCell className="text-right font-medium tabular-nums">{formatMoney(p.amountCents)}</TableCell>
               <TableCell>{t(methodKeys[p.method])}</TableCell>
               <TableCell>
                 <div className="flex items-center">

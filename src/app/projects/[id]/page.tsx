@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
 import { useTranslation } from "@/context/i18n-context";
 import { useToast } from "@/context/toast-context";
 import { useInvoices } from "@/features/invoices/use-invoices";
@@ -29,7 +30,7 @@ import { ProjectDeliverables } from "@/features/deliverables/components/project-
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { t, formatMoney, formatDate } = useTranslation();
+  const { t, formatMoney, formatDate, formatNumber } = useTranslation();
   const project = useProject(id);
   const { updateProject, setStatus, deleteProject, getDeletionCheck } = useProjects();
   const { clients } = useClients();
@@ -106,7 +107,7 @@ export default function ProjectDetailPage() {
         actions={
           <div className="flex items-center gap-2">
             {unbilled.length > 0 ? (
-              <Button variant="secondary" onClick={billDialog.open}>
+              <Button onClick={billDialog.open}>
                 {t("projects.billHoursAction")}
               </Button>
             ) : null}
@@ -122,26 +123,26 @@ export default function ProjectDetailPage() {
 
       <Card className="mb-6">
         <div className="flex flex-wrap items-start justify-between gap-6">
-          <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
             <div>
-              <p className="text-text-muted">{t("clients.title")}</p>
-              <p className="text-text">{client?.name ?? "—"}</p>
+              <p className="label-eyebrow text-text-muted">{t("projects.fieldClient")}</p>
+              <p className="mt-1 text-base font-semibold text-text">{client?.name ?? "—"}</p>
             </div>
             <div>
-              <p className="text-text-muted">
+              <p className="label-eyebrow text-text-muted">
                 {current.billingType === "hourly" ? t("projects.summaryHourlyRate") : t("projects.summaryBudget")}
               </p>
-              <p className="text-text">
+              <p className="mt-1 text-xl font-semibold tracking-tight text-text">
                 {formatMoney(current.billingType === "hourly" ? current.hourlyRateCents ?? 0 : current.budgetCents ?? 0)}
               </p>
             </div>
             <div>
-              <p className="text-text-muted">{t("projects.summaryHoursLogged")}</p>
-              <p className="text-text">{progress.hoursLogged.toFixed(1)}h</p>
+              <p className="label-eyebrow text-text-muted">{t("projects.summaryHoursLogged")}</p>
+              <p className="mt-1 text-xl font-semibold tracking-tight text-text">{formatNumber(progress.hoursLogged)} h</p>
             </div>
             <div>
-              <p className="text-text-muted">{t("projects.fieldDueDate")}</p>
-              <p className="text-text">{formatDate(current.dueDate)}</p>
+              <p className="label-eyebrow text-text-muted">{t("projects.fieldDueDate")}</p>
+              <p className="mt-1 text-xl font-semibold tracking-tight text-text">{formatDate(current.dueDate)}</p>
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
@@ -161,8 +162,18 @@ export default function ProjectDetailPage() {
             </Select>
           </div>
         </div>
-        <div className="mt-4 max-w-sm">
-          <ProgressBar percent={progress.percent} label={t("projects.summaryProgress")} />
+        <div className="mt-6 border-t border-border pt-4">
+          <ProgressBar
+            percent={progress.percent}
+            label={t("projects.summaryProgress")}
+            tone={progress.isDelayed ? "danger" : "accent"}
+          />
+          {progress.isDelayed ? (
+            <p className="mt-2 flex items-center gap-1 text-sm font-medium text-danger">
+              <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+              {t("projects.delayedLabel")}
+            </p>
+          ) : null}
         </div>
       </Card>
 
@@ -185,10 +196,10 @@ export default function ProjectDetailPage() {
           ) : (
             <ul className="flex flex-col gap-2">
               {timeEntries.map((entry) => (
-                <li key={entry.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3 text-sm">
+                <li key={entry.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-surface p-4 text-sm text-text">
                   <span>
                     <span className="text-text-muted">{formatDate(entry.startedAt)}</span> — {entry.description} —{" "}
-                    {(entry.durationMinutes / 60).toFixed(1)}h
+                    {formatNumber(entry.durationMinutes / 60)} h
                   </span>
                   {entry.invoiceId ? <StatusBadge label={t("time.invoicedBadge")} tone="success" /> : null}
                 </li>
@@ -198,7 +209,9 @@ export default function ProjectDetailPage() {
         ) : null}
 
         {tab === "summary" ? (
-          <p className="text-sm text-text-muted">{current.description || "—"}</p>
+          <Card>
+            <p className="text-sm text-text-muted">{current.description || "—"}</p>
+          </Card>
         ) : null}
       </div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { Lightbulb } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useData } from "@/context/data-context";
 import { useTranslation } from "@/context/i18n-context";
@@ -31,15 +32,18 @@ export function ActionsSection() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid items-start gap-6 xl:grid-cols-2">
       <Card className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold text-text">{t("ai.actionsTitle")}</h2>
+        <h2 className="flex items-center gap-2 text-xl font-semibold text-text">
+          <Lightbulb className="h-5 w-5 text-accent" aria-hidden="true" />
+          {t("ai.actionsTitle")}
+        </h2>
         {actions.length === 0 ? (
           <p className="text-sm text-text-muted">{t("ai.actionsEmpty")}</p>
         ) : (
           <ul className="flex flex-col gap-2">
             {actions.map((a) => (
-              <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3">
+              <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-surface-muted p-4">
                 <span className="text-sm text-text">{t(`ai.action.${a.kind}`, a.params)}</span>
                 <Button variant="secondary" onClick={() => prepare(a)}>
                   {t("ai.prepareDraft")}

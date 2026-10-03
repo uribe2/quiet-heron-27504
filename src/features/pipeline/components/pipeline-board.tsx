@@ -15,19 +15,22 @@ export function PipelineBoard({ columns, clientNames, ...handlers }: PipelineBoa
   const totals = columnTotals(columns);
 
   return (
-    <div className="grid gap-4 overflow-x-auto pb-2 md:grid-cols-5">
+    <div className="flex gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-5 md:overflow-visible">
       {OPPORTUNITY_STAGES.map((stage) => {
         const label = t(stageLabelKey(stage));
         return (
-          <section key={stage} aria-label={label} className="flex min-w-60 flex-col gap-3 rounded-xl bg-bg p-2">
-            <header>
-              <h2 className="text-sm font-semibold text-text">{label}</h2>
-              <p className="text-xs text-text-muted">
-                {t("pipeline.columnCount", { count: totals[stage].count })} · {formatMoney(totals[stage].totalCents)}
-              </p>
+          <section key={stage} aria-label={label} className="flex min-w-64 flex-col gap-3 rounded-xl border border-border bg-surface-muted p-3 md:min-w-0">
+            <header className="flex flex-col gap-1 px-1">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h2 className="text-base font-semibold text-text">{label}</h2>
+                <span className="rounded-full border border-border bg-surface px-2 py-0.5 text-xs font-medium text-text-muted">
+                  {totals[stage].count === 1 ? t("pipeline.columnCountOne") : t("pipeline.columnCount", { count: totals[stage].count })}
+                </span>
+              </div>
+              <p className="text-sm font-semibold text-text">{formatMoney(totals[stage].totalCents)}</p>
             </header>
             {columns[stage].length === 0 ? (
-              <p className="text-xs text-text-muted">{t("pipeline.columnEmpty")}</p>
+              <p className="rounded-lg border border-dashed border-border-strong px-3 py-6 text-center text-xs text-text-muted">{t("pipeline.columnEmpty")}</p>
             ) : (
               <ul className="flex flex-col gap-3">
                 {columns[stage].map((o) => (

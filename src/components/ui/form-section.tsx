@@ -12,7 +12,7 @@ export function FormSection({
   return (
     <fieldset className="flex flex-col gap-4 border-t border-border pt-6 first:border-t-0 first:pt-0">
       <div>
-        <legend className="text-base font-semibold text-text">{title}</legend>
+        <legend className="label-eyebrow text-text-muted">{title}</legend>
         {description ? (
           <p className="mt-1 text-sm text-text-muted">{description}</p>
         ) : null}

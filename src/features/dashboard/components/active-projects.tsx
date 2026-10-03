@@ -1,17 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import { AlertTriangle, ArrowRight, Calendar, Clock } from "lucide-react";
 import { useTranslation } from "@/context/i18n-context";
 import { useData } from "@/context/data-context";
-import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress-bar";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { getProjectProgress } from "@/features/projects/logic";
 
 const focus = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2";
 
 export function ActiveProjects() {
-  const { t } = useTranslation();
+  const { t, formatDate, formatNumber } = useTranslation();
   const { data } = useData();
   const projects = data.projects
     .filter((p) => p.status === "active")
@@ -19,18 +20,22 @@ export function ActiveProjects() {
     .slice(0, 2);
   return (
     <section aria-labelledby="dash-projects">
-      <div className="mb-3 flex items-center justify-between">
-        <h2 id="dash-projects" className="text-base font-semibold text-text">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 id="dash-projects" className="text-xl font-semibold tracking-tight text-text">
           {t("dashboard.projectsTitle")}
         </h2>
-        <Link href="/projects" className={`text-sm font-medium text-link underline ${focus}`}>
+        <Link
+          href="/projects"
+          className={`inline-flex min-h-11 items-center gap-1 rounded-lg text-sm font-medium text-link hover:underline ${focus}`}
+        >
           {t("dashboard.viewProjects")}
+          <ArrowRight size={16} aria-hidden="true" />
         </Link>
       </div>
       {projects.length === 0 ? (
         <EmptyState title={t("dashboard.projectsEmpty")} />
       ) : (
-        <ul className="flex flex-col gap-3">
+        <ul className="grid gap-4 md:grid-cols-2">
           {projects.map((p) => {
             const progress = getProjectProgress(
               p,
@@ -39,21 +44,36 @@ export function ActiveProjects() {
             );
             const client = data.clients.find((c) => c.id === p.clientId)?.name;
             return (
-              <li key={p.id}>
-                <Card className="flex flex-col gap-3 p-4">
+              <li key={p.id} className="flex flex-col rounded-xl border border-border bg-surface">
+                <div className="flex flex-1 flex-col gap-3 p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <Link href={`/projects/${p.id}`} className={`text-sm font-semibold text-text underline ${focus}`}>
-                      {p.name}
-                    </Link>
+                    {client ? <p className="label-eyebrow text-text-muted">{client}</p> : <span />}
                     {progress.isDelayed ? (
-                      <span className="rounded-full bg-danger-soft px-2 py-0.5 text-xs font-medium text-danger">
-                        {t("dashboard.delayed")}
-                      </span>
+                      <StatusBadge
+                        tone="danger"
+                        label={t("dashboard.delayed")}
+                        icon={<AlertTriangle size={14} aria-hidden="true" />}
+                      />
                     ) : null}
                   </div>
-                  {client ? <p className="text-xs text-text-muted">{client}</p> : null}
+                  <Link
+                    href={`/projects/${p.id}`}
+                    className={`rounded text-base font-semibold text-text hover:text-link hover:underline ${focus}`}
+                  >
+                    {p.name}
+                  </Link>
                   <ProgressBar percent={progress.percent} tone={progress.isDelayed ? "danger" : "accent"} />
-                </Card>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-b-xl border-t border-border bg-surface-muted px-5 py-3 text-sm text-text-muted">
+                  <span className={`inline-flex items-center gap-1.5 ${progress.isDelayed ? "text-danger" : ""}`}>
+                    <Calendar size={16} aria-hidden="true" />
+                    {t("dashboard.dueOn", { date: formatDate(p.dueDate) })}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock size={16} aria-hidden="true" />
+                    {t("dashboard.hoursLogged", { hours: formatNumber(progress.hoursLogged) })}
+                  </span>
+                </div>
               </li>
             );
           })}

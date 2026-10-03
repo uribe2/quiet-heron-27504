@@ -38,9 +38,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         onCloseMobile={mobileMenu.close}
         onNewProject={newProjectDrawer.open}
       />
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <Header onOpenMobileMenu={mobileMenu.open} />
-        <main id="main-content" className="flex-1 px-4 py-6 lg:px-8">
+        <main id="main-content" className="flex-1 px-4 py-8 lg:px-8">
           <div className="mx-auto max-w-[1280px]">{children}</div>
         </main>
       </div>

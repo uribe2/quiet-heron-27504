@@ -35,7 +35,7 @@ export function EntryFiltersBar({ filters, projects, onChange }: EntryFiltersBar
   );
 
   return (
-    <div className="flex flex-wrap items-end gap-3">
+    <div className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-surface p-4">
       <Labeled id="time-filter-project" label={t("time.filterProject")}>
         <Select
           id="time-filter-project"
