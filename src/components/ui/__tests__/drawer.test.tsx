@@ -1,41 +1,68 @@
-import { describe, it, expect, beforeAll, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { describe, it, expect, vi, beforeAll } from "vitest";
+import { useState } from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { installDialogPolyfill, flushDialogEvents } from "@/test/dialog-polyfill";
 import { Drawer } from "../drawer";
 
-beforeAll(() => {
-  HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
-    this.setAttribute("open", "");
-  };
-  HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
-    this.removeAttribute("open");
-    this.dispatchEvent(new Event("close"));
-  };
-});
+beforeAll(installDialogPolyfill);
 
-function renderDrawer(isOpen: boolean, onClose: () => void) {
+function Harness({ onRequestClose }: { onRequestClose: () => void }) {
+  const [isOpen, setIsOpen] = useState(true);
   return (
-    <Drawer isOpen={isOpen} onClose={onClose} title="Drawer" closeLabel="Cerrar">
-      <p>content</p>
-    </Drawer>
+    <>
+      <Drawer isOpen={isOpen} onClose={onRequestClose} title="Drawer" closeLabel="Cerrar">
+        <button type="button" onClick={() => setIsOpen(false)}>
+          Guardar
+        </button>
+      </Drawer>
+      <span data-testid="state">{isOpen ? "open" : "closed"}</span>
+    </>
   );
 }
 
-describe("Drawer close handling", () => {
-  it("does not call onClose when the parent closes it programmatically", () => {
-    const onClose = vi.fn();
-    const { rerender } = render(renderDrawer(true, onClose));
-    rerender(renderDrawer(false, onClose));
-    expect(onClose).not.toHaveBeenCalled();
+describe("Drawer", () => {
+  it("does not call onClose when the parent closes it (e.g. after saving)", async () => {
+    const onRequestClose = vi.fn();
+    render(<Harness onRequestClose={onRequestClose} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Guardar" }));
+    await flushDialogEvents();
+
+    expect(screen.getByTestId("state")).toHaveTextContent("closed");
+    expect(onRequestClose).not.toHaveBeenCalled();
   });
 
-  it("routes Escape (cancel event) through onClose and keeps the dialog open", () => {
-    const onClose = vi.fn();
-    const { container } = render(renderDrawer(true, onClose));
-    const dialog = container.querySelector("dialog")!;
-    const event = new Event("cancel", { cancelable: true });
-    dialog.dispatchEvent(event);
-    expect(onClose).toHaveBeenCalledTimes(1);
-    expect(event.defaultPrevented).toBe(true);
-    expect(dialog.hasAttribute("open")).toBe(true);
+  it("routes Escape through onClose and keeps the dialog open until the parent decides", () => {
+    const onRequestClose = vi.fn();
+    render(<Harness onRequestClose={onRequestClose} />);
+    const dialog = document.querySelector("dialog")!;
+
+    const cancel = new Event("cancel", { cancelable: true });
+    dialog.dispatchEvent(cancel);
+
+    expect(cancel.defaultPrevented).toBe(true);
+    expect(onRequestClose).toHaveBeenCalledTimes(1);
+    expect(dialog).toHaveAttribute("open");
+  });
+
+  it("calls onClose from the close button", () => {
+    const onRequestClose = vi.fn();
+    render(<Harness onRequestClose={onRequestClose} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Cerrar" }));
+
+    expect(onRequestClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("reopens and asks the parent if the browser closes it on its own", async () => {
+    const onRequestClose = vi.fn();
+    render(<Harness onRequestClose={onRequestClose} />);
+    const dialog = document.querySelector("dialog")!;
+
+    dialog.close();
+    await flushDialogEvents();
+
+    expect(onRequestClose).toHaveBeenCalledTimes(1);
+    expect(dialog).toHaveAttribute("open");
   });
 });

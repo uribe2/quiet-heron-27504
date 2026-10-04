@@ -3,11 +3,11 @@
 import { useMemo, useState } from "react";
 import { Users } from "lucide-react";
 import { useTranslation } from "@/context/i18n-context";
+import { useToast } from "@/context/toast-context";
 import { useClients } from "@/features/clients/use-clients";
 import { filterClients, type ClientFilters } from "@/features/clients/logic";
 import type { Client } from "@/features/clients/types";
 import type { ClientFormValues } from "@/features/clients/schema";
-import { useToast } from "@/context/toast-context";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -43,11 +43,10 @@ export default function ClientsPage() {
   function handleSubmit(values: ClientFormValues) {
     if (editingClient) {
       updateClient(editingClient.id, values);
-      show({ message: t("clients.updatedToast", { name: values.name }) });
     } else {
       createClient(values);
-      show({ message: t("clients.createdToast", { name: values.name }) });
     }
+    show({ message: t("clients.saveSuccess") });
     drawer.close();
   }
 

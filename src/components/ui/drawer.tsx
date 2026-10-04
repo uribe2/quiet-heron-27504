@@ -26,8 +26,12 @@ export function Drawer({
 }: DrawerProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const previouslyFocused = useRef<HTMLElement | null>(null);
+  // Mirrors the `isOpen` prop so the native listeners can tell a close requested by the
+  // parent (e.g. after a successful save) from one initiated by the browser (Escape).
+  const isOpenRef = useRef(isOpen);
 
   useEffect(() => {
+    isOpenRef.current = isOpen;
     const dialog = dialogRef.current;
     if (!dialog) return;
     if (isOpen && !dialog.open) {
@@ -41,14 +45,21 @@ export function Drawer({
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    // Escape fires "cancel": route it through onClose so callers can intercept
-    // (e.g. a "discard changes?" prompt). "close" also fires when the parent closes
-    // the drawer programmatically, so it only restores focus.
+    // Escape: keep the dialog open and let the parent decide (it may ask to discard changes).
     const handleCancel = (event: Event) => {
       event.preventDefault();
       onClose();
     };
     const handleClose = () => {
+      // `close` fires asynchronously: ignore a stale event if the drawer was reopened meanwhile.
+      if (dialog.open) return;
+      if (isOpenRef.current) {
+        // The browser closed the dialog on its own (cancel could not be prevented):
+        // restore it so the parent's decision is what actually closes the drawer.
+        dialog.showModal();
+        onClose();
+        return;
+      }
       previouslyFocused.current?.focus();
     };
     dialog.addEventListener("cancel", handleCancel);

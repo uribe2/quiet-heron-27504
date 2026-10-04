@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle } from "lucide-react";
 import { useEffect, useMemo } from "react";
@@ -62,7 +62,6 @@ export function MeetingForm({ meeting, clients, projects, onSubmit, onDirtyChang
   const schema = useMemo(() => buildMeetingSchema(!meeting || meeting.status === "scheduled"), [meeting]);
   const {
     register,
-    control,
     handleSubmit,
     watch,
     formState: { errors, isDirty },
@@ -127,11 +126,7 @@ export function MeetingForm({ meeting, clients, projects, onSubmit, onDirtyChang
             required
             error={errors.startsAt?.message && t(meetingErrorKey(errors.startsAt.message))}
           >
-            <Controller
-              control={control}
-              name="startsAt"
-              render={({ field }) => <Input type="datetime-local" value={field.value} onChange={field.onChange} />}
-            />
+            <Input type="datetime-local" {...register("startsAt")} />
           </FormField>
           <FormField
             label={t("meetings.fieldDuration")}

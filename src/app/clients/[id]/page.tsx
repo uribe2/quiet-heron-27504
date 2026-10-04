@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "@/context/i18n-context";
+import { useToast } from "@/context/toast-context";
 import { useClients, useClient } from "@/features/clients/use-clients";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,6 @@ import { Tabs } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ClientDrawer } from "@/features/clients/components/client-drawer";
 import { ActivityTab, ClientHealth, DocumentsTab, ProjectsTab, QuotesInvoicesTab } from "@/features/clients/components/client-detail-tabs";
-import { useToast } from "@/context/toast-context";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import type { ClientFormValues } from "@/features/clients/schema";
 
@@ -60,7 +60,7 @@ export default function ClientDetailPage() {
 
   function handleSubmit(values: ClientFormValues) {
     updateClient(activeClient.id, values);
-    show({ message: t("clients.updatedToast", { name: values.name }) });
+    show({ message: t("clients.saveSuccess") });
     drawer.close();
   }
 

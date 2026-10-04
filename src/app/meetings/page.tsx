@@ -128,10 +128,12 @@ export default function MeetingsPage() {
         onSubmit={handleSubmit}
         onCancelMeeting={(m) => {
           cancelMeeting(m);
+          show({ message: t("meetings.cancelledToast") });
           drawer.close();
         }}
         onMarkDone={(m, notes, registerInteraction) => {
           markDone(m, notes, registerInteraction);
+          show({ message: t("meetings.doneToast") });
         }}
         onDeleteRequest={(m) => {
           setPendingFocus({ id: getFocusTargetAfterDelete(filtered, m.id) });

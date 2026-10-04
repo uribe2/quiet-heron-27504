@@ -129,7 +129,7 @@ describe("Toast al crear cliente", () => {
     await userEvent.click(screen.getAllByRole("button", { name: "+ Crear cliente" })[0]);
     await userEvent.type(screen.getByLabelText(/^Nombre/, { selector: "input" }), "Cliente Nuevo SA");
     await userEvent.click(screen.getByRole("button", { name: "Guardar" }));
-    await waitFor(() => expect(screen.getByText("Cliente Cliente Nuevo SA creado.")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("Cliente guardado.")).toBeInTheDocument());
   });
 });
 

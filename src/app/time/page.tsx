@@ -51,11 +51,11 @@ export default function TimePage() {
   }
 
   function handleSubmit(values: TimeEntryFormValues) {
-    if (editing) {
-      updateEntry(editing.id, values);
-    } else {
-      createEntry(values);
+    if (editing && !updateEntry(editing.id, values)) {
+      show({ message: t("time.lockedToast") });
+      return;
     }
+    if (!editing) createEntry(values);
     show({ message: t("time.saveSuccess") });
     drawer.close();
   }

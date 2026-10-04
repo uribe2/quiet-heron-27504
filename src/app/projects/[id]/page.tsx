@@ -28,6 +28,13 @@ import { useDisclosure } from "@/hooks/use-disclosure";
 import { ProjectDocuments } from "@/features/projects/components/project-documents";
 import { ProjectDeliverables } from "@/features/deliverables/components/project-deliverables";
 
+const STATUS_KEYS: Record<ProjectStatus, string> = {
+  active: "projects.statusActive",
+  paused: "projects.statusPaused",
+  completed: "projects.statusCompleted",
+  cancelled: "projects.statusCancelled",
+};
+
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -73,7 +80,13 @@ export default function ProjectDetailPage() {
 
   function handleSubmit(values: ProjectFormValues) {
     updateProject(current.id, values);
+    show({ message: t("projects.saveSuccess") });
     drawer.close();
+  }
+
+  function applyStatus(next: ProjectStatus) {
+    setStatus(current, next);
+    show({ message: t("projects.statusChangedToast", { status: t(STATUS_KEYS[next]).toLowerCase() }) });
   }
 
   function handleStatusChange(next: ProjectStatus) {
@@ -81,7 +94,7 @@ export default function ProjectDetailPage() {
       setPendingStatus(next);
       return;
     }
-    setStatus(current, next);
+    applyStatus(next);
   }
 
   function requestDelete() {
@@ -233,7 +246,7 @@ export default function ProjectDetailPage() {
       <ConfirmDialog
         isOpen={pendingStatus !== null}
         onClose={() => setPendingStatus(null)}
-        onConfirm={() => pendingStatus && setStatus(current, pendingStatus)}
+        onConfirm={() => pendingStatus && applyStatus(pendingStatus)}
         title={t("projects.completeConfirmTitle")}
         description={t("projects.completeConfirmBody")}
         confirmLabel={t("projects.completeConfirmConfirm")}

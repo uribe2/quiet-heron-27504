@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Briefcase } from "lucide-react";
 import { useTranslation } from "@/context/i18n-context";
+import { useToast } from "@/context/toast-context";
 import { useProjects } from "@/features/projects/use-projects";
 import { useClients } from "@/features/clients/use-clients";
 import { filterProjects, type ProjectFilters } from "@/features/projects/logic";
@@ -17,6 +18,7 @@ import { ProjectDrawer } from "@/features/projects/components/project-drawer";
 
 export default function ProjectsPage() {
   const { t } = useTranslation();
+  const { show } = useToast();
   const { projects, createProject } = useProjects();
   const { clients } = useClients();
   const drawer = useDisclosure(false);
@@ -27,6 +29,7 @@ export default function ProjectsPage() {
 
   function handleSubmit(values: ProjectFormValues) {
     createProject(values);
+    show({ message: t("projects.saveSuccess") });
     drawer.close();
   }
 
