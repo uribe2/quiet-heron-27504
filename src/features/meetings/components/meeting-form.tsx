@@ -4,7 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle } from "lucide-react";
 import { useEffect, useMemo } from "react";
-import { buildMeetingSchema, type MeetingFormValues } from "../schema";
+import { buildMeetingSchema, MEETING_TITLE_MAX, type MeetingFormValues } from "../schema";
 import type { Meeting } from "../types";
 import type { Client } from "@/features/clients/types";
 import type { Project } from "@/features/projects/types";
@@ -41,6 +41,11 @@ function meetingToDefaults(meeting?: Meeting): MeetingFormValues {
   };
 }
 
+/** Maps a schema error code to its translated message. */
+export function meetingErrorKey(code: string): string {
+  return code === "durationRange" ? "meetings.errorDuration" : `validation.${code}`;
+}
+
 export const MEETING_FORM_ID = "meeting-form";
 
 interface MeetingFormProps {
@@ -54,7 +59,7 @@ interface MeetingFormProps {
 export function MeetingForm({ meeting, clients, projects, onSubmit, onDirtyChange }: MeetingFormProps) {
   const { t } = useTranslation();
   const { getOverlaps } = useMeetings();
-  const schema = useMemo(() => buildMeetingSchema(!meeting), [meeting]);
+  const schema = useMemo(() => buildMeetingSchema(!meeting || meeting.status === "scheduled"), [meeting]);
   const {
     register,
     control,
@@ -78,13 +83,17 @@ export function MeetingForm({ meeting, clients, projects, onSubmit, onDirtyChang
     : [];
 
   return (
-    <form
+    <form noValidate
       id={MEETING_FORM_ID}
       onSubmit={handleSubmit((values) => onSubmit({ ...values, startsAt: fromDatetimeLocal(values.startsAt) }))}
       className="flex flex-col gap-6"
     >
       <FormSection title={t("meetings.fieldTitle")}>
-        <FormField label={t("meetings.fieldTitle")} required>
+        <FormField
+          label={t("meetings.fieldTitle")}
+          required
+          error={errors.title?.message && t(meetingErrorKey(errors.title.message), { max: MEETING_TITLE_MAX })}
+        >
           <Input {...register("title")} />
         </FormField>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -116,7 +125,7 @@ export function MeetingForm({ meeting, clients, projects, onSubmit, onDirtyChang
           <FormField
             label={t("meetings.fieldStartsAt")}
             required
-            error={errors.startsAt?.message && t(`validation.${errors.startsAt.message}`)}
+            error={errors.startsAt?.message && t(meetingErrorKey(errors.startsAt.message))}
           >
             <Controller
               control={control}
@@ -124,7 +133,11 @@ export function MeetingForm({ meeting, clients, projects, onSubmit, onDirtyChang
               render={({ field }) => <Input type="datetime-local" value={field.value} onChange={field.onChange} />}
             />
           </FormField>
-          <FormField label={t("meetings.fieldDuration")} required>
+          <FormField
+            label={t("meetings.fieldDuration")}
+            required
+            error={errors.durationMinutes?.message && t(meetingErrorKey(errors.durationMinutes.message))}
+          >
             <Input type="number" min={15} max={480} step={15} {...register("durationMinutes", { valueAsNumber: true })} />
           </FormField>
         </div>
@@ -139,7 +152,7 @@ export function MeetingForm({ meeting, clients, projects, onSubmit, onDirtyChang
         <FormField
           label={t("meetings.fieldLocationOrLink")}
           required={mode === "video"}
-          error={errors.locationOrLink?.message && t(`validation.${errors.locationOrLink.message}`)}
+          error={errors.locationOrLink?.message && t(meetingErrorKey(errors.locationOrLink.message))}
         >
           <Input {...register("locationOrLink")} />
         </FormField>

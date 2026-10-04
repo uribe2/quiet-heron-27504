@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { Drawer } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
@@ -37,12 +37,21 @@ export function DocumentDrawer({
   const [confirmingClose, setConfirmingClose] = useState(false);
 
   function requestClose() {
+    // The native dialog "close" event fires after a programmatic close (e.g. after saving); ignore it.
+    if (!isOpen) return;
     if (isDirty) {
       setConfirmingClose(true);
       return;
     }
     onClose();
   }
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsDirty(false);
+      setConfirmingClose(false);
+    }
+  }, [isOpen]);
 
   return (
     <>

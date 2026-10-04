@@ -20,6 +20,22 @@ export function groupMeetingsByDay(meetings: Meeting[]): Map<string, Meeting[]> 
   return map;
 }
 
+/** Meetings in the order the list renders them (grouped by day, ascending). */
+export function orderMeetingsForDisplay(meetings: Meeting[]): Meeting[] {
+  return Array.from(groupMeetingsByDay(meetings).values()).flat();
+}
+
+/**
+ * HU-10.4: id of the meeting that should receive focus after deleting `deletedId`:
+ * the next one in the list, the previous one if it was last, or null when the list becomes empty.
+ */
+export function getFocusTargetAfterDelete(displayed: Meeting[], deletedId: string): string | null {
+  const ordered = orderMeetingsForDisplay(displayed);
+  const index = ordered.findIndex((m) => m.id === deletedId);
+  if (index === -1) return null;
+  return ordered[index + 1]?.id ?? ordered[index - 1]?.id ?? null;
+}
+
 export interface MeetingFilters {
   clientId?: string;
   status?: MeetingStatus | "all";

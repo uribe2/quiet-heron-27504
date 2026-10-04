@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Calendar } from "lucide-react";
 import { useTranslation } from "@/context/i18n-context";
 import { useToast } from "@/context/toast-context";
 import { useMeetings } from "@/features/meetings/use-meetings";
 import { useClients } from "@/features/clients/use-clients";
 import { useProjects } from "@/features/projects/use-projects";
-import { filterMeetings, isUpcoming, type MeetingFilters } from "@/features/meetings/logic";
+import { filterMeetings, getFocusTargetAfterDelete, isUpcoming, type MeetingFilters } from "@/features/meetings/logic";
 import { getNowISO } from "@/lib/dates";
 import type { Meeting } from "@/features/meetings/types";
 import type { MeetingFormValues } from "@/features/meetings/schema";
@@ -31,6 +31,8 @@ export default function MeetingsPage() {
   const [tab, setTab] = useState("upcoming");
   const [filters, setFilters] = useState<MeetingFilters>({});
 
+  const [pendingFocus, setPendingFocus] = useState<{ id: string | null } | null>(null);
+
   const activeClients = useMemo(() => clients.filter((c) => c.status === "active"), [clients]);
   const now = getNowISO();
   const byTab = useMemo(
@@ -38,6 +40,25 @@ export default function MeetingsPage() {
     [meetings, tab, now],
   );
   const filtered = useMemo(() => filterMeetings(byTab, filters), [byTab, filters]);
+
+  // HU-10.4: after a deletion move focus to the next/previous item, or to the page heading.
+  useEffect(() => {
+    if (!pendingFocus) return;
+    const timer = window.setTimeout(() => {
+      const target = pendingFocus.id
+        ? document.querySelector<HTMLElement>(`[data-meeting-id="${pendingFocus.id}"]`)
+        : null;
+      if (target) {
+        target.focus();
+      } else {
+        const heading = document.querySelector<HTMLElement>("h1");
+        heading?.setAttribute("tabindex", "-1");
+        heading?.focus();
+      }
+      setPendingFocus(null);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [pendingFocus]);
 
   function openCreate() {
     setEditingMeeting(undefined);
@@ -113,6 +134,7 @@ export default function MeetingsPage() {
           markDone(m, notes, registerInteraction);
         }}
         onDeleteRequest={(m) => {
+          setPendingFocus({ id: getFocusTargetAfterDelete(filtered, m.id) });
           deleteMeeting(m);
           drawer.close();
         }}

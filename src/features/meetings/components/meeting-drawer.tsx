@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Drawer } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -41,12 +41,21 @@ export function MeetingDrawer({
   const [markingDone, setMarkingDone] = useState(false);
 
   function requestClose() {
+    // The native dialog "close" event fires after a programmatic close (e.g. after saving); ignore it.
+    if (!isOpen) return;
     if (isDirty) {
       setConfirmingClose(true);
       return;
     }
     onClose();
   }
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsDirty(false);
+      setConfirmingClose(false);
+    }
+  }, [isOpen]);
 
   const canManage = meeting && meeting.status === "scheduled";
 
@@ -97,7 +106,10 @@ export function MeetingDrawer({
       <ConfirmDialog
         isOpen={confirmingClose}
         onClose={() => setConfirmingClose(false)}
-        onConfirm={onClose}
+        onConfirm={() => {
+          setConfirmingClose(false);
+          onClose();
+        }}
         title={t("clients.discardConfirmTitle")}
         description={t("clients.discardConfirmBody")}
         confirmLabel={t("clients.discardConfirmConfirm")}

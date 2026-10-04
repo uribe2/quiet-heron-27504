@@ -42,6 +42,7 @@ export function MeetingList({ meetings, onOpen }: { meetings: Meeting[]; onOpen:
                     <Card className="p-0 transition-shadow hover:shadow-[var(--shadow-level-1)]">
                       <button
                         type="button"
+                        data-meeting-id={meeting.id}
                         onClick={() => onOpen(meeting)}
                         className="flex w-full flex-col gap-4 rounded-xl p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 sm:flex-row sm:items-center sm:p-5"
                       >

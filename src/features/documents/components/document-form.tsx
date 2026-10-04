@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { buildDocumentSchema, type DocumentFormValues } from "../schema";
+import { buildDocumentSchema, DOCUMENT_DESCRIPTION_MAX, DOCUMENT_NAME_MAX, type DocumentFormValues } from "../schema";
 import { fileNameWithoutExtension, formatFileSize, parseTags } from "../logic";
 import { ALLOWED_DOCUMENT_EXTENSIONS, MAX_DOCUMENT_SIZE_BYTES, type DocumentRecord } from "../types";
 import { DOCUMENT_KINDS, kindLabelKey } from "./kind-meta";
@@ -65,10 +65,10 @@ export function DocumentForm({ document: doc, clients, projects, onSubmit, onDir
     onDirtyChange?.(isDirty);
   }, [isDirty, onDirtyChange]);
 
-  function message(code?: string): string | undefined {
+  function message(code?: string, max?: number): string | undefined {
     if (!code) return undefined;
     if (FILE_ERRORS.includes(code)) return t(`documents.${code}`, { max: MAX_MB, types: TYPES });
-    return t(`validation.${code}`);
+    return t(`validation.${code}`, max === undefined ? undefined : { max });
   }
 
   function handleFile(selected: File | undefined) {
@@ -123,7 +123,7 @@ export function DocumentForm({ document: doc, clients, projects, onSubmit, onDir
       )}
 
       <FormSection title={t("documents.sectionDetails")}>
-        <FormField label={t("documents.fieldName")} required error={message(errors.name?.message)}>
+        <FormField label={t("documents.fieldName")} required error={message(errors.name?.message, DOCUMENT_NAME_MAX)}>
           <Input {...register("name")} />
         </FormField>
         <FormField label={t("documents.fieldKind")} required>
@@ -172,7 +172,7 @@ export function DocumentForm({ document: doc, clients, projects, onSubmit, onDir
             </FormField>
           )}
         />
-        <FormField label={t("documents.fieldDescription")} error={message(errors.description?.message)}>
+        <FormField label={t("documents.fieldDescription")} error={message(errors.description?.message, DOCUMENT_DESCRIPTION_MAX)}>
           <Textarea rows={3} {...register("description")} />
         </FormField>
       </FormSection>

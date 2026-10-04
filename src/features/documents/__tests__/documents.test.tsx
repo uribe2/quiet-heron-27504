@@ -169,3 +169,25 @@ describe("HU-11.4 Eliminar documento", () => {
     expect(docs.filter((d) => d.projectId === "p-1")).toHaveLength(0);
   });
 });
+
+describe("Mensajes de validación de documentos", () => {
+  it("schema uses maxLength codes for name and description", () => {
+    const schema = buildDocumentSchema("edit");
+    const issues = (v: object) => {
+      const r = schema.safeParse(v);
+      return r.success ? {} : Object.fromEntries(r.error.issues.map((i) => [i.path.join("."), i.message]));
+    };
+    expect(issues({ ...linkValues, name: "x".repeat(151) }).name).toBe("maxLength");
+    expect(issues({ ...linkValues, description: "x".repeat(1001) }).description).toBe("maxLength");
+  });
+
+  it("DocumentForm shows translated max-length and invalid URL messages", async () => {
+    const { fireEvent, waitFor } = await import("@testing-library/react");
+    render(<DocumentForm clients={[]} projects={[]} onSubmit={() => {}} />, { wrapper: ProvidersWrapper });
+    fireEvent.input(screen.getByPlaceholderText("https://"), { target: { value: "nope" } });
+    fireEvent.input(document.querySelector("input:not([type=url])")!, { target: { value: "x".repeat(151) } });
+    fireEvent.submit(document.getElementById("document-form")!);
+    await waitFor(() => expect(screen.getByText("Usa máximo 150 caracteres.")).toBeTruthy());
+    expect(screen.getByText(/Usa una URL válida/)).toBeTruthy();
+  });
+});

@@ -60,3 +60,19 @@ describe("HU-10.2 Agendar reunión", () => {
     expect(overlapping).toHaveLength(0);
   });
 });
+
+describe("HU-10.4 Foco tras eliminar", () => {
+  const list = [
+    meeting({ id: "a", startsAt: "2026-06-01T09:00:00.000Z" }),
+    meeting({ id: "b", startsAt: "2026-06-01T11:00:00.000Z" }),
+    meeting({ id: "c", startsAt: "2026-06-02T11:00:00.000Z" }),
+  ];
+
+  it("targets the next item, the previous when it was last, or null when empty", async () => {
+    const { getFocusTargetAfterDelete } = await import("../logic");
+    expect(getFocusTargetAfterDelete(list, "a")).toBe("b");
+    expect(getFocusTargetAfterDelete(list, "b")).toBe("c");
+    expect(getFocusTargetAfterDelete(list, "c")).toBe("b");
+    expect(getFocusTargetAfterDelete([list[0]], "a")).toBeNull();
+  });
+});

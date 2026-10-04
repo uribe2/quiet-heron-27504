@@ -1,8 +1,11 @@
 import * as z from "zod";
 import { validateFile, isValidUrl } from "./logic";
 
+export const DOCUMENT_NAME_MAX = 150;
+export const DOCUMENT_DESCRIPTION_MAX = 1000;
+
 const baseDocumentSchema = z.object({
-  name: z.string().trim().min(1, "required").max(150),
+  name: z.string().trim().min(1, "required").max(DOCUMENT_NAME_MAX, "maxLength"),
   kind: z.enum(["contract", "proposal", "deliverable", "invoice", "brief", "other"]),
   clientId: z.string().optional(),
   projectId: z.string().optional(),
@@ -10,7 +13,7 @@ const baseDocumentSchema = z.object({
   url: z.string().optional(),
   file: z.object({ fileName: z.string(), mimeType: z.string(), sizeBytes: z.number() }).optional(),
   tags: z.array(z.string()),
-  description: z.string().max(1000).optional(),
+  description: z.string().max(DOCUMENT_DESCRIPTION_MAX, "maxLength").optional(),
 });
 
 /** In edit mode the source is immutable, so only the shared fields are validated. */
