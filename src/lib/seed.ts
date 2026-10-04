@@ -284,26 +284,30 @@ export function createSeedData(): AppData {
   ];
 
   const timeEntries: TimeEntry[] = [];
-  const timeProjects: { projectId: string; deliverableId?: string; billable: boolean }[] = [
-    { projectId: "p-2", deliverableId: "d-4", billable: true },
-    { projectId: "p-2", deliverableId: "d-5", billable: true },
-    { projectId: "p-4", deliverableId: "d-11", billable: true },
-    { projectId: "p-4", deliverableId: "d-12", billable: true },
-    { projectId: "p-1", billable: false },
-    { projectId: "p-3", billable: false },
+  const timeProjects: { projectId: string; deliverableId?: string; billable: boolean; description: string }[] = [
+    { projectId: "p-2", deliverableId: "d-4", billable: true, description: "Investigación de referentes" },
+    { projectId: "p-2", deliverableId: "d-5", billable: true, description: "Paleta de color y tipografía" },
+    { projectId: "p-4", deliverableId: "d-11", billable: true, description: "Wireframes de la pantalla de inicio" },
+    { projectId: "p-4", deliverableId: "d-12", billable: true, description: "Revisión de textos con el cliente" },
+    { projectId: "p-1", billable: false, description: "QA interno del sitio" },
+    { projectId: "p-3", billable: false, description: "Ajustes de pauta digital" },
   ];
   for (let i = 0; i < 18; i++) {
     const spec = timeProjects[i % timeProjects.length];
-    const dayOffset = -(i % 14);
+    // From yesterday back two weeks, so no seeded entry ends later than "now".
+    const day = addDays(today, -(i % 14) - 1);
     const duration = 60 + (i % 4) * 30;
+    // 13:00–16:00 UTC = 8–11 a.m. in Colombia (UTC-5), like the other seeded datetimes.
+    const startHour = 13 + (i % 4);
+    const endMinutes = startHour * 60 + duration;
     timeEntries.push({
       ...base,
       id: `t-${i + 1}`,
       projectId: spec.projectId,
       deliverableId: spec.deliverableId,
-      description: `Trabajo en ${spec.projectId} #${i + 1}`,
-      startedAt: `${addDays(today, dayOffset)}T09:00:00.000Z`,
-      endedAt: `${addDays(today, dayOffset)}T${String(9 + Math.floor(duration / 60)).padStart(2, "0")}:${String(duration % 60).padStart(2, "0")}:00.000Z`,
+      description: spec.description,
+      startedAt: `${day}T${String(startHour).padStart(2, "0")}:00:00.000Z`,
+      endedAt: `${day}T${String(Math.floor(endMinutes / 60)).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}:00.000Z`,
       durationMinutes: duration,
       billable: spec.billable,
       invoiceId: i < 3 ? "inv-1041" : undefined,

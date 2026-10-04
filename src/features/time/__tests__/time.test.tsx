@@ -154,9 +154,10 @@ describe("HU-06.3 Listar y filtrar registros", () => {
     expect(filterEntries(all, { invoiced: "yes" }).map((e) => e.id).sort()).toEqual(["t-1", "t-2", "t-3"]);
     expect(filterEntries(all, { invoiced: "no" })).toHaveLength(all.length - 3);
     const today = getToday();
-    const ranged = filterEntries(all, { from: today, to: today });
+    const yesterday = addDays(today, -1);
+    const ranged = filterEntries(all, { from: yesterday, to: yesterday });
     expect(ranged.length).toBeGreaterThan(0);
-    expect(filterEntries(all, { from: addDays(today, 1) })).toHaveLength(0);
+    expect(filterEntries(all, { from: today })).toHaveLength(0);
   });
 
   it("summarizes hours and the amount for hourly projects only", () => {
