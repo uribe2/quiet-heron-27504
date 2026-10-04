@@ -94,3 +94,23 @@ npm run test
 ```
 
 El conteo por historia de usuario está en la página [Pruebas](https://github.com/isis3710-uniandes/ISIS3710_202620_S3_E07_Front/wiki/Pruebas) de la wiki.
+
+### Pruebas end-to-end
+
+Playwright recorre la app en un navegador real, sobre el build de producción. Las pruebas están en `e2e/` (una por flujo) y Vitest las excluye.
+
+```bash
+npx playwright install chromium   # solo la primera vez
+npm run e2e                       # compila, levanta next start en el puerto 3100 y corre los flujos
+npx playwright show-report        # reporte HTML de la última corrida
+```
+
+Si ya hay un servidor en el puerto 3100 se reutiliza (útil para iterar). Cada prueba parte de la semilla limpia y usa la zona horaria `America/Bogota`.
+
+| Flujo | Archivo | Qué verifica |
+|---|---|---|
+| Cotización → proyecto | `quote-to-project.spec.ts` | Crear y enviar una cotización, aceptarla y convertirla en proyecto una sola vez |
+| Cronómetro → factura → pago | `time-to-payment.spec.ts` | El cronómetro sobrevive a la navegación y a la recarga; facturar horas; enviar y pagar la factura; el registro queda facturado |
+| Asistente IA | `ai.spec.ts` | Estado de carga, respuesta simulada con datos reales en la región `aria-live` |
+| Idioma | `language.spec.ts` | Cambio a inglés (`lang`, navegación, formato de dinero) y persistencia tras recargar |
+| Clientes | `clients.spec.ts` | Validación, aviso de guardado sin diálogo de descarte, archivar y deshacer |
