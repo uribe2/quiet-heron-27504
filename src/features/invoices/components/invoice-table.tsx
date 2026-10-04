@@ -79,12 +79,19 @@ export function InvoiceTable({
                     </IconButton>
                   ) : null}
                   {canCancelInvoice(invoice) ? (
-                    <IconButton
-                      aria-label={t("invoices.cancelActionFor", { number: invoice.number })}
-                      onClick={() => onCancel(invoice)}
-                    >
-                      <Ban className="h-4 w-4" aria-hidden="true" />
-                    </IconButton>
+                    <>
+                      <IconButton
+                        aria-label={t("invoices.cancelActionFor", { number: invoice.number })}
+                        aria-describedby={`cancel-help-${invoice.id}`}
+                        title={t("invoices.cancelHelp")}
+                        onClick={() => onCancel(invoice)}
+                      >
+                        <Ban className="h-4 w-4" aria-hidden="true" />
+                      </IconButton>
+                      <span id={`cancel-help-${invoice.id}`} className="sr-only">
+                        {t("invoices.cancelHelp")}
+                      </span>
+                    </>
                   ) : null}
                 </div>
               </TableCell>

@@ -69,11 +69,19 @@ export function QuoteForm({ quote, clients, readOnly = false, initialValues, onS
 
   const totals = useMemo(() => calculateTotals(items, taxRate || 0), [items, taxRate]);
   const itemsError = (errors.items as { message?: string } | undefined)?.message;
+  const titleError = errors.title
+    ? errors.title.type === "too_big"
+      ? t("validation.maxLength", { max: 150 })
+      : errors.title.type === "too_small" && (watch("title") ?? "").trim().length > 0
+        ? t("validation.minLength", { min: 2 })
+        : t("validation.required")
+    : undefined;
+  const showSend = !readOnly && quote?.status !== "sent";
 
   return (
-    <form className="flex flex-col gap-6">
+    <form noValidate className="flex flex-col gap-6">
       <FormSection title={t("quotes.sectionClient")}>
-        <FormField label={t("quotes.fieldClient")} required>
+        <FormField label={t("quotes.fieldClient")} required error={errors.clientId ? t("validation.required") : undefined}>
           <Select {...register("clientId")} disabled={readOnly}>
             <option value="">—</option>
             {clients.map((c) => (
@@ -83,20 +91,30 @@ export function QuoteForm({ quote, clients, readOnly = false, initialValues, onS
             ))}
           </Select>
         </FormField>
-        <FormField label={t("quotes.fieldTitle")} required>
+        <FormField label={t("quotes.fieldTitle")} required error={titleError}>
           <Input {...register("title")} disabled={readOnly} />
         </FormField>
       </FormSection>
 
       <FormSection title={t("quotes.sectionItems")}>
-        {itemsError ? <p className="text-xs text-danger">{t("validation.required")}</p> : null}
+        {itemsError ? (
+          <p role="alert" className="text-xs text-danger">
+            {t("quotes.errorNoItems")}
+          </p>
+        ) : null}
         <div className="flex flex-col gap-3">
           {fields.map((field, index) => (
             <div key={field.id} className="grid grid-cols-[1fr_80px_120px_44px] items-end gap-2">
-              <FormField label={t("quotes.itemDescription")}>
+              <FormField
+                label={t("quotes.itemDescription")}
+                error={errors.items?.[index]?.description ? t("validation.required") : undefined}
+              >
                 <Input {...register(`items.${index}.description`)} disabled={readOnly} />
               </FormField>
-              <FormField label={t("quotes.itemQuantity")}>
+              <FormField
+                label={t("quotes.itemQuantity")}
+                error={errors.items?.[index]?.quantity ? t("validation.mustBePositive") : undefined}
+              >
                 <Input
                   type="number"
                   min={0.01}
@@ -109,7 +127,10 @@ export function QuoteForm({ quote, clients, readOnly = false, initialValues, onS
                 control={control}
                 name={`items.${index}.unitPriceCents`}
                 render={({ field: priceField }) => (
-                  <FormField label={t("quotes.itemUnitPrice")}>
+                  <FormField
+                    label={t("quotes.itemUnitPrice")}
+                    error={errors.items?.[index]?.unitPriceCents ? t("validation.mustBeNonNegative") : undefined}
+                  >
                     <Input
                       type="number"
                       min={0}
@@ -141,36 +162,13 @@ export function QuoteForm({ quote, clients, readOnly = false, initialValues, onS
             {t("quotes.addItem")}
           </Button>
         ) : null}
-
-        <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface-muted p-4 text-sm tabular-nums">
-          <div className="flex justify-between">
-            <span className="text-text-muted">{t("quotes.subtotal")}</span>
-            <span>{formatMoney(totals.subtotalCents)}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-text-muted">{t("quotes.tax")}</span>
-            <Input
-              type="number"
-              min={0}
-              max={100}
-              step="0.1"
-              className="h-8 w-20 text-right"
-              disabled={readOnly}
-              {...register("taxRate", { valueAsNumber: true })}
-            />
-          </div>
-          <div className="flex justify-between font-semibold text-text">
-            <span>{t("quotes.total")}</span>
-            <span>{formatMoney(totals.totalCents)}</span>
-          </div>
-        </div>
       </FormSection>
 
       <FormSection title={t("quotes.sectionTerms")}>
-        <FormField label={t("quotes.fieldPaymentTerms")} required>
+        <FormField label={t("quotes.fieldPaymentTerms")} required error={errors.paymentTerms ? t("validation.required") : undefined}>
           <Input {...register("paymentTerms")} disabled={readOnly} />
         </FormField>
-        <FormField label={t("quotes.fieldValidUntil")} required>
+        <FormField label={t("quotes.fieldValidUntil")} required error={errors.validUntil ? t("validation.required") : undefined}>
           <Input type="date" {...register("validUntil")} disabled={readOnly} />
         </FormField>
         <FormField label={t("quotes.fieldScope")}>
@@ -178,16 +176,52 @@ export function QuoteForm({ quote, clients, readOnly = false, initialValues, onS
         </FormField>
       </FormSection>
 
-      {!readOnly ? (
-        <div className="flex justify-end gap-3">
-          <Button type="button" variant="secondary" onClick={handleSubmit((values) => onSubmit(values, "draft"))}>
-            {t("quotes.saveDraft")}
-          </Button>
-          <Button type="button" onClick={handleSubmit((values) => onSubmit(values, "send"))}>
-            {t("quotes.saveAndSend")}
-          </Button>
-        </div>
-      ) : null}
+      <div
+        data-testid="quote-sticky-footer"
+        className="sticky bottom-0 z-10 -mx-1 flex flex-col gap-3 bg-surface px-1 pb-1 pt-3 shadow-[0_-8px_8px_-8px_rgba(15,23,42,0.15)]"
+      >
+          <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface-muted p-4 text-sm tabular-nums">
+            <div className="flex justify-between">
+              <span className="text-text-muted">{t("quotes.subtotal")}</span>
+              <span>{formatMoney(totals.subtotalCents)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-text-muted">{t("quotes.tax")}</span>
+              <Input
+                type="number"
+                min={0}
+                max={100}
+                step="0.1"
+                className="h-8 w-20 text-right"
+                disabled={readOnly}
+                aria-label={t("quotes.tax")}
+                aria-invalid={Boolean(errors.taxRate)}
+                {...register("taxRate", { valueAsNumber: true })}
+              />
+            </div>
+            {errors.taxRate ? (
+              <p role="alert" className="text-right text-xs text-danger">
+                {t("quotes.errorTaxRate")}
+              </p>
+            ) : null}
+            <div className="flex justify-between font-semibold text-text">
+              <span>{t("quotes.total")}</span>
+              <span>{formatMoney(totals.totalCents)}</span>
+            </div>
+          </div>
+        {!readOnly ? (
+          <div className="flex justify-end gap-3">
+            <Button type="button" variant="secondary" onClick={handleSubmit((values) => onSubmit(values, "draft"))}>
+              {t("quotes.saveDraft")}
+            </Button>
+            {showSend ? (
+              <Button type="button" onClick={handleSubmit((values) => onSubmit(values, "send"))}>
+                {t("quotes.saveAndSend")}
+              </Button>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
     </form>
   );
 }

@@ -69,7 +69,7 @@ export function PaymentForm({ payment, invoices, defaultInvoiceId, onSubmit, onD
     : undefined;
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
+    <form noValidate className="flex flex-col gap-4" onSubmit={(e) => e.preventDefault()}>
       <FormField label={t("payments.fieldInvoice")} required error={errors.invoiceId ? t("validation.required") : undefined}>
         <Select
           disabled={Boolean(payment) || Boolean(defaultInvoiceId)}

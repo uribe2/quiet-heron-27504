@@ -67,7 +67,7 @@ export function InvoiceForm({ invoice, clients, onSubmit, onDirtyChange }: Invoi
   const dueError = errors.dueDate ? t("invoices.errorDueBeforeIssue") : undefined;
 
   return (
-    <form className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
+    <form noValidate className="flex flex-col gap-6" onSubmit={(e) => e.preventDefault()}>
       <FormSection title={t("invoices.sectionGeneral")}>
         <FormField label={t("invoices.fieldClient")} required error={errors.clientId ? t("validation.required") : undefined}>
           <Select {...register("clientId")}>
@@ -100,7 +100,11 @@ export function InvoiceForm({ invoice, clients, onSubmit, onDirtyChange }: Invoi
       </FormSection>
 
       <FormSection title={t("invoices.sectionItems")}>
-        {itemsError ? <p className="text-xs text-danger">{t("validation.required")}</p> : null}
+        {itemsError ? (
+          <p role="alert" className="text-xs text-danger">
+            {t("invoices.errorNoItems")}
+          </p>
+        ) : null}
         <div className="flex flex-col gap-3">
           {fields.map((field, index) => (
             <div key={field.id} className="grid grid-cols-[1fr_80px_120px_44px] items-end gap-2">
@@ -126,7 +130,10 @@ export function InvoiceForm({ invoice, clients, onSubmit, onDirtyChange }: Invoi
                 control={control}
                 name={`items.${index}.unitPriceCents`}
                 render={({ field: priceField }) => (
-                  <FormField label={t("invoices.itemUnitPrice")}>
+                  <FormField
+                    label={t("invoices.itemUnitPrice")}
+                    error={errors.items?.[index]?.unitPriceCents ? t("validation.mustBeNonNegative") : undefined}
+                  >
                     <Input
                       type="number"
                       min={0}
@@ -170,9 +177,16 @@ export function InvoiceForm({ invoice, clients, onSubmit, onDirtyChange }: Invoi
               step="0.1"
               className="h-9 w-20 text-right"
              
+              aria-invalid={Boolean(errors.taxRate)}
+              aria-describedby={errors.taxRate ? "invoice-tax-rate-error" : undefined}
               {...register("taxRate", { valueAsNumber: true })}
             />
           </div>
+          {errors.taxRate ? (
+            <p id="invoice-tax-rate-error" className="text-right text-xs text-danger">
+              {t("invoices.errorTaxRate")}
+            </p>
+          ) : null}
           <div className="flex justify-between font-semibold text-text">
             <span>{t("invoices.total")}</span>
             <span>{formatMoney(totals.totalCents)}</span>
