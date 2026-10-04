@@ -61,12 +61,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
     document.documentElement.lang = lang;
-    window.localStorage.setItem(STORAGE_KEY, lang);
   }, [lang]);
 
-  const setLang = useCallback((next: Lang) => setLangState(next), []);
+  // Persist only on an explicit change: an effect on `lang` would first write the
+  // initial "es" over the stored choice before the read above is applied.
+  const setLang = useCallback((next: Lang) => {
+    setLangState(next);
+    window.localStorage.setItem(STORAGE_KEY, next);
+  }, []);
 
   const t = useCallback(
     (key: string, vars?: Record<string, string | number>) => {

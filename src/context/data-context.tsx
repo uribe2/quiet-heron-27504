@@ -107,10 +107,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     setIsHydrated(true);
   }, []);
 
+  // Write only after the stored data has been read; otherwise the first run would
+  // overwrite the user's data with the seed until the HYDRATE render lands.
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (!isHydrated) return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [data]);
+  }, [data, isHydrated]);
 
   return (
     <DataContext.Provider value={{ data, dispatch, isHydrated }}>
