@@ -41,12 +41,22 @@ export function Drawer({
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    const handleClose = () => {
+    // Escape fires "cancel": route it through onClose so callers can intercept
+    // (e.g. a "discard changes?" prompt). "close" also fires when the parent closes
+    // the drawer programmatically, so it only restores focus.
+    const handleCancel = (event: Event) => {
+      event.preventDefault();
       onClose();
+    };
+    const handleClose = () => {
       previouslyFocused.current?.focus();
     };
+    dialog.addEventListener("cancel", handleCancel);
     dialog.addEventListener("close", handleClose);
-    return () => dialog.removeEventListener("close", handleClose);
+    return () => {
+      dialog.removeEventListener("cancel", handleCancel);
+      dialog.removeEventListener("close", handleClose);
+    };
   }, [onClose]);
 
   return (
