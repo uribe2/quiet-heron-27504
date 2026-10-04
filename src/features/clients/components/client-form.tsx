@@ -66,7 +66,7 @@ export function ClientForm({ client, existingClients, onSubmit, onDirtyChange }:
   return (
     <form id={CLIENT_FORM_ID} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
       <FormSection title={t("clients.sectionGeneral")}>
-        <FormField label={t("clients.fieldName")} required error={errors.name?.message && t(`validation.${errors.name.message}`)}>
+        <FormField label={t("clients.fieldName")} required error={errors.name?.message && t(`validation.${errors.name.message}`, { min: 2, max: 100 })}>
           <Input {...register("name")} />
         </FormField>
         <FormField label={t("clients.fieldType")} required>
@@ -174,7 +174,7 @@ export function ClientForm({ client, existingClients, onSubmit, onDirtyChange }:
           )}
         />
         <FormField label={t("clients.fieldSource")}>
-          <Select {...register("source")}>
+          <Select {...register("source", { setValueAs: (v) => v || undefined })}>
             <option value="">—</option>
             <option value="referral">{t("clients.sourceReferral")}</option>
             <option value="website">{t("clients.sourceWebsite")}</option>

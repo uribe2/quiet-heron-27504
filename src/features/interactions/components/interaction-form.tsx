@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { interactionFormSchema, type InteractionFormValues } from "../schema";
 import type { Interaction } from "../types";
@@ -43,7 +43,6 @@ export function InteractionForm({ interaction, presetClientId, clients, onSubmit
   const { t } = useTranslation();
   const {
     register,
-    control,
     handleSubmit,
     watch,
     formState: { errors, isDirty },
@@ -96,18 +95,10 @@ export function InteractionForm({ interaction, presetClientId, clients, onSubmit
         </FormField>
       </div>
       <FormField label={t("interactions.fieldOccurredAt")} required error={errorText(errors.occurredAt?.message)}>
-        <Controller
-          control={control}
-          name="occurredAt"
-          render={({ field }) => (
-            <Input
-              type="datetime-local"
-              value={field.value}
-              max={toDatetimeLocal(new Date().toISOString())}
-              onChange={field.onChange}
-              onBlur={field.onBlur}
-            />
-          )}
+        <Input
+          type="datetime-local"
+          max={toDatetimeLocal(new Date().toISOString())}
+          {...register("occurredAt")}
         />
       </FormField>
       <div className="flex flex-col gap-1.5">

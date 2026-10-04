@@ -69,11 +69,12 @@ export function QuoteForm({ quote, clients, readOnly = false, initialValues, onS
 
   const totals = useMemo(() => calculateTotals(items, taxRate || 0), [items, taxRate]);
   const itemsError = (errors.items as { message?: string } | undefined)?.message;
+  const requiredError = (error?: unknown) => (error ? t("validation.required") : undefined);
 
   return (
     <form className="flex flex-col gap-6">
       <FormSection title={t("quotes.sectionClient")}>
-        <FormField label={t("quotes.fieldClient")} required>
+        <FormField label={t("quotes.fieldClient")} required error={requiredError(errors.clientId)}>
           <Select {...register("clientId")} disabled={readOnly}>
             <option value="">—</option>
             {clients.map((c) => (
@@ -83,7 +84,11 @@ export function QuoteForm({ quote, clients, readOnly = false, initialValues, onS
             ))}
           </Select>
         </FormField>
-        <FormField label={t("quotes.fieldTitle")} required>
+        <FormField
+          label={t("quotes.fieldTitle")}
+          required
+          error={errors.title ? t("validation.minLength", { min: 2 }) : undefined}
+        >
           <Input {...register("title")} disabled={readOnly} />
         </FormField>
       </FormSection>
@@ -93,7 +98,7 @@ export function QuoteForm({ quote, clients, readOnly = false, initialValues, onS
         <div className="flex flex-col gap-3">
           {fields.map((field, index) => (
             <div key={field.id} className="grid grid-cols-[1fr_80px_120px_44px] items-end gap-2">
-              <FormField label={t("quotes.itemDescription")}>
+              <FormField label={t("quotes.itemDescription")} error={requiredError(errors.items?.[index]?.description)}>
                 <Input {...register(`items.${index}.description`)} disabled={readOnly} />
               </FormField>
               <FormField label={t("quotes.itemQuantity")}>
@@ -167,10 +172,10 @@ export function QuoteForm({ quote, clients, readOnly = false, initialValues, onS
       </FormSection>
 
       <FormSection title={t("quotes.sectionTerms")}>
-        <FormField label={t("quotes.fieldPaymentTerms")} required>
+        <FormField label={t("quotes.fieldPaymentTerms")} required error={requiredError(errors.paymentTerms)}>
           <Input {...register("paymentTerms")} disabled={readOnly} />
         </FormField>
-        <FormField label={t("quotes.fieldValidUntil")} required>
+        <FormField label={t("quotes.fieldValidUntil")} required error={requiredError(errors.validUntil)}>
           <Input type="date" {...register("validUntil")} disabled={readOnly} />
         </FormField>
         <FormField label={t("quotes.fieldScope")}>
