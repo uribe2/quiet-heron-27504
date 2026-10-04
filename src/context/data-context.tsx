@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useReducer,
+  useState,
   type Dispatch,
   type ReactNode,
 } from "react";
@@ -81,6 +82,8 @@ export function dataReducer(state: AppData, action: DataAction): AppData {
 interface DataContextValue {
   data: AppData;
   dispatch: Dispatch<DataAction>;
+  /** False during SSR/prerender and the first client render, before localStorage is read. */
+  isHydrated: boolean;
 }
 
 const DataContext = createContext<DataContextValue | null>(null);
@@ -89,6 +92,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [data, dispatch] = useReducer(dataReducer, undefined, () =>
     createSeedData(),
   );
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -100,6 +104,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     } catch {
       // ignore corrupt storage, keep seed data
     }
+    setIsHydrated(true);
   }, []);
 
   useEffect(() => {
@@ -108,7 +113,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   }, [data]);
 
   return (
-    <DataContext.Provider value={{ data, dispatch }}>
+    <DataContext.Provider value={{ data, dispatch, isHydrated }}>
       {children}
     </DataContext.Provider>
   );
