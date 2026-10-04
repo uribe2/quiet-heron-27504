@@ -53,14 +53,18 @@ export function ProjectForm({ project, clients, onSubmit, onDirtyChange }: Proje
   });
   const billingType = watch("billingType");
 
+  function err(message?: string) {
+    return message ? t(`validation.${message}`, { min: 2, max: 100 }) : undefined;
+  }
+
   useEffect(() => {
     onDirtyChange?.(isDirty);
   }, [isDirty, onDirtyChange]);
 
   return (
-    <form id={PROJECT_FORM_ID} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+    <form id={PROJECT_FORM_ID} noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
       <FormSection title={t("projects.fieldClient")}>
-        <FormField label={t("projects.fieldClient")} required>
+        <FormField label={t("projects.fieldClient")} required error={err(errors.clientId?.message)}>
           <Select {...register("clientId")}>
             <option value="">—</option>
             {clients.map((c) => (
@@ -70,7 +74,7 @@ export function ProjectForm({ project, clients, onSubmit, onDirtyChange }: Proje
             ))}
           </Select>
         </FormField>
-        <FormField label={t("projects.fieldName")} required error={errors.name?.message && t("validation.minLength", { min: 2 })}>
+        <FormField label={t("projects.fieldName")} required error={err(errors.name?.message)}>
           <Input {...register("name")} />
         </FormField>
         <FormField label={t("projects.fieldDescription")}>
@@ -93,7 +97,7 @@ export function ProjectForm({ project, clients, onSubmit, onDirtyChange }: Proje
               <FormField
                 label={t("projects.fieldHourlyRate")}
                 required
-                error={errors.hourlyRateCents?.message && t("validation.required")}
+                error={err(errors.hourlyRateCents?.message)}
               >
                 <Input
                   type="number"
@@ -113,7 +117,7 @@ export function ProjectForm({ project, clients, onSubmit, onDirtyChange }: Proje
               <FormField
                 label={t("projects.fieldBudget")}
                 required
-                error={errors.budgetCents?.message && t("validation.required")}
+                error={err(errors.budgetCents?.message)}
               >
                 <Input
                   type="number"
@@ -130,7 +134,7 @@ export function ProjectForm({ project, clients, onSubmit, onDirtyChange }: Proje
           control={control}
           name="estimatedHours"
           render={({ field }) => (
-            <FormField label={t("projects.fieldEstimatedHours")}>
+            <FormField label={t("projects.fieldEstimatedHours")} error={err(errors.estimatedHours?.message)}>
               <Input
                 type="number"
                 min={0}
@@ -141,13 +145,13 @@ export function ProjectForm({ project, clients, onSubmit, onDirtyChange }: Proje
           )}
         />
         <div className="grid grid-cols-2 gap-4">
-          <FormField label={t("projects.fieldStartDate")} required>
+          <FormField label={t("projects.fieldStartDate")} required error={err(errors.startDate?.message)}>
             <Input type="date" {...register("startDate")} />
           </FormField>
           <FormField
             label={t("projects.fieldDueDate")}
             required
-            error={errors.dueDate?.message && t("validation.endAfterStart")}
+            error={err(errors.dueDate?.message)}
           >
             <Input type="date" {...register("dueDate")} />
           </FormField>

@@ -25,6 +25,7 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ProjectDrawer } from "@/features/projects/components/project-drawer";
 import { useDisclosure } from "@/hooks/use-disclosure";
+import { ProjectDocuments } from "@/features/projects/components/project-documents";
 import { ProjectDeliverables } from "@/features/deliverables/components/project-deliverables";
 
 export default function ProjectDetailPage() {
@@ -94,6 +95,7 @@ export default function ProjectDetailPage() {
 
   function confirmDelete() {
     deleteProject(current);
+    show({ message: t("projects.deletedToast") });
     router.push("/projects");
   }
 
@@ -184,6 +186,7 @@ export default function ProjectDetailPage() {
           { value: "summary", label: t("projects.detailTabSummary") },
           { value: "deliverables", label: t("projects.detailTabDeliverables") },
           { value: "time", label: t("projects.detailTabTime") },
+          { value: "documents", label: t("projects.detailTabDocuments") },
         ]}
       />
 
@@ -207,6 +210,8 @@ export default function ProjectDetailPage() {
             </ul>
           )
         ) : null}
+
+        {tab === "documents" ? <ProjectDocuments projectId={current.id} /> : null}
 
         {tab === "summary" ? (
           <Card>

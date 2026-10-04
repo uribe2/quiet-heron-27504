@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Drawer } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -30,6 +30,15 @@ export function DeliverableDrawer({
   const { t } = useTranslation();
   const [isDirty, setIsDirty] = useState(false);
   const [confirmingClose, setConfirmingClose] = useState(false);
+
+  // Reset transient state whenever the drawer closes (e.g. after a successful save),
+  // so a stale dirty flag never triggers the discard dialog on the next close.
+  useEffect(() => {
+    if (!isOpen) {
+      setIsDirty(false);
+      setConfirmingClose(false);
+    }
+  }, [isOpen]);
 
   function requestClose() {
     if (isDirty) {
