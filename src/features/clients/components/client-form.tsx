@@ -61,12 +61,20 @@ export function ClientForm({ client, existingClients, onSubmit, onDirtyChange }:
     onDirtyChange?.(isDirty);
   }, [isDirty, onDirtyChange]);
 
-  const contactsError = (errors.contacts as { message?: string } | undefined)?.message;
+  const contactsErrors = errors.contacts as { message?: string; root?: { message?: string } } | undefined;
+  const contactsError = contactsErrors?.message ?? contactsErrors?.root?.message;
+
+  function errorText(message?: string): string | undefined {
+    if (!message) return undefined;
+    if (message === "minLength") return t("validation.minLength", { min: 2 });
+    if (message === "maxLength") return t("validation.maxLength", { max: 100 });
+    return t(`validation.${message}`);
+  }
 
   return (
-    <form id={CLIENT_FORM_ID} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+    <form id={CLIENT_FORM_ID} noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
       <FormSection title={t("clients.sectionGeneral")}>
-        <FormField label={t("clients.fieldName")} required error={errors.name?.message && t(`validation.${errors.name.message}`)}>
+        <FormField label={t("clients.fieldName")} required error={errorText(errors.name?.message)}>
           <Input {...register("name")} />
         </FormField>
         <FormField label={t("clients.fieldType")} required>
@@ -92,7 +100,7 @@ export function ClientForm({ client, existingClients, onSubmit, onDirtyChange }:
         <div className="grid grid-cols-2 gap-4">
           <FormField
             label={t("clients.fieldEmail")}
-            error={errors.email?.message && t(`validation.${errors.email.message}`)}
+            error={errorText(errors.email?.message)}
           >
             <Input type="email" {...register("email")} />
           </FormField>
@@ -102,7 +110,7 @@ export function ClientForm({ client, existingClients, onSubmit, onDirtyChange }:
         </div>
         <FormField
           label={t("clients.fieldWebsite")}
-          error={errors.website?.message && t(`validation.${errors.website.message}`)}
+          error={errorText(errors.website?.message)}
         >
           <Input {...register("website")} />
         </FormField>
@@ -122,12 +130,16 @@ export function ClientForm({ client, existingClients, onSubmit, onDirtyChange }:
             </Button>
           </div>
           {contactsError ? (
-            <p className="text-xs text-danger">{t(`validation.${contactsError}`)}</p>
+            <p role="alert" className="text-xs text-danger">{errorText(contactsError)}</p>
           ) : null}
           {fields.map((field, index) => (
             <div key={field.id} className="flex flex-col gap-3 rounded-lg border border-border p-4">
               <div className="grid grid-cols-2 gap-4">
-                <FormField label={t("clients.contactName")} required>
+                <FormField
+                  label={t("clients.contactName")}
+                  required
+                  error={errorText(errors.contacts?.[index]?.name?.message)}
+                >
                   <Input {...register(`contacts.${index}.name`)} />
                 </FormField>
                 <FormField label={t("clients.contactRole")}>
@@ -135,7 +147,10 @@ export function ClientForm({ client, existingClients, onSubmit, onDirtyChange }:
                 </FormField>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <FormField label={t("clients.contactEmail")}>
+                <FormField
+                  label={t("clients.contactEmail")}
+                  error={errorText(errors.contacts?.[index]?.email?.message)}
+                >
                   <Input type="email" {...register(`contacts.${index}.email`)} />
                 </FormField>
                 <FormField label={t("clients.contactPhone")}>

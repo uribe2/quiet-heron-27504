@@ -21,7 +21,7 @@ function toClientFields(values: ClientFormValues) {
     country: values.country || undefined,
     contacts: values.contacts,
     tags: values.tags,
-    source: values.source,
+    source: values.source || undefined,
     notes: values.notes || undefined,
   };
 }

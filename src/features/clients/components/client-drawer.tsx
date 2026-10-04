@@ -19,7 +19,9 @@ interface ClientDrawerProps {
 
 export function ClientDrawer({ isOpen, onClose, client, existingClients, onSubmit }: ClientDrawerProps) {
   const { t } = useTranslation();
-  const [isDirty, setIsDirty] = useState(false);
+  const [dirtyFlag, setIsDirty] = useState(false);
+  // The form unmounts when the drawer closes, so a stale flag must never count.
+  const isDirty = isOpen && dirtyFlag;
   const [confirmingClose, setConfirmingClose] = useState(false);
 
   function requestClose() {
@@ -61,7 +63,11 @@ export function ClientDrawer({ isOpen, onClose, client, existingClients, onSubmi
       <ConfirmDialog
         isOpen={confirmingClose}
         onClose={() => setConfirmingClose(false)}
-        onConfirm={onClose}
+        onConfirm={() => {
+          setConfirmingClose(false);
+          setIsDirty(false);
+          onClose();
+        }}
         title={t("clients.discardConfirmTitle")}
         description={t("clients.discardConfirmBody")}
         confirmLabel={t("clients.discardConfirmConfirm")}

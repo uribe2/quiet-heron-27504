@@ -5,7 +5,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "@/context/i18n-context";
 import { useClients, useClient } from "@/features/clients/use-clients";
-import { getPrimaryContact } from "@/features/clients/logic";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -13,12 +12,14 @@ import { Tabs } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ClientDrawer } from "@/features/clients/components/client-drawer";
 import { ActivityTab, ClientHealth, DocumentsTab, ProjectsTab, QuotesInvoicesTab } from "@/features/clients/components/client-detail-tabs";
+import { useToast } from "@/context/toast-context";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import type { ClientFormValues } from "@/features/clients/schema";
 
 export default function ClientDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  const { show } = useToast();
   const client = useClient(id);
   const { clients, updateClient } = useClients();
   const drawer = useDisclosure(false);
@@ -37,10 +38,29 @@ export default function ClientDetailPage() {
   }
 
   const activeClient = client;
-  const primary = getPrimaryContact(activeClient);
+
+  const sourceLabels: Record<string, string> = {
+    referral: t("clients.sourceReferral"),
+    website: t("clients.sourceWebsite"),
+    social: t("clients.sourceSocial"),
+    marketplace: t("clients.sourceMarketplace"),
+    other: t("clients.sourceOther"),
+  };
+  const dash = "—";
+  const details: { label: string; value: string }[] = [
+    { label: t("clients.fieldType"), value: client.type === "company" ? t("clients.typeCompany") : t("clients.typeIndividual") },
+    { label: t("clients.fieldEmail"), value: client.email || dash },
+    { label: t("clients.fieldPhone"), value: client.phone || dash },
+    { label: t("clients.fieldWebsite"), value: client.website || dash },
+    { label: t("clients.fieldTaxId"), value: client.taxId || dash },
+    { label: t("clients.fieldCity"), value: client.city || dash },
+    { label: t("clients.fieldCountry"), value: client.country || dash },
+    { label: t("clients.fieldSource"), value: client.source ? sourceLabels[client.source] : dash },
+  ];
 
   function handleSubmit(values: ClientFormValues) {
     updateClient(activeClient.id, values);
+    show({ message: t("clients.updatedToast", { name: values.name }) });
     drawer.close();
   }
 
@@ -74,22 +94,12 @@ export default function ClientDetailPage() {
             </div>
           </div>
           <dl className="mt-5 grid grid-cols-1 gap-x-6 gap-y-4 text-sm sm:grid-cols-2">
-            <div>
-              <dt className="label-eyebrow">{t("clients.fieldEmail")}</dt>
-              <dd className="mt-1 break-words text-text">{client.email ?? "—"}</dd>
-            </div>
-            <div>
-              <dt className="label-eyebrow">{t("clients.fieldPhone")}</dt>
-              <dd className="mt-1 text-text">{client.phone ?? "—"}</dd>
-            </div>
-            <div>
-              <dt className="label-eyebrow">{t("clients.columnContact")}</dt>
-              <dd className="mt-1 text-text">{primary?.name ?? t("clients.noContactsYet")}</dd>
-            </div>
-            <div>
-              <dt className="label-eyebrow">{t("clients.fieldWebsite")}</dt>
-              <dd className="mt-1 break-words text-text">{client.website ?? "—"}</dd>
-            </div>
+            {details.map((d) => (
+              <div key={d.label}>
+                <dt className="label-eyebrow">{d.label}</dt>
+                <dd className="mt-1 break-words text-text">{d.value}</dd>
+              </div>
+            ))}
           </dl>
           {client.tags.length > 0 ? (
             <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-border pt-4">
@@ -99,11 +109,39 @@ export default function ClientDetailPage() {
               ))}
             </div>
           ) : null}
+          {client.notes ? (
+            <div className="mt-5 border-t border-border pt-4">
+              <p className="label-eyebrow">{t("clients.fieldNotes")}</p>
+              <p className="mt-1 whitespace-pre-line text-sm text-text">{client.notes}</p>
+            </div>
+          ) : null}
         </Card>
         <Card>
           <ClientHealth clientId={activeClient.id} />
         </Card>
       </div>
+
+      <Card className="mb-6">
+        <h2 className="text-base font-semibold text-text">{t("clients.detailSectionContacts")}</h2>
+        {client.contacts.length === 0 ? (
+          <p className="mt-3 text-sm text-text-muted">{t("clients.noContactsYet")}</p>
+        ) : (
+          <ul className="mt-3 divide-y divide-border">
+            {client.contacts.map((c) => (
+              <li key={c.id} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 py-3 text-sm">
+                <div>
+                  <p className="font-medium text-text">
+                    {c.name}
+                    {c.role ? <span className="font-normal text-text-muted"> · {c.role}</span> : null}
+                  </p>
+                  <p className="text-text-muted">{[c.email, c.phone].filter(Boolean).join(" · ") || "—"}</p>
+                </div>
+                {c.isPrimary ? <StatusBadge label={t("clients.primaryBadge")} tone="success" /> : null}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
 
       <Tabs
         value={tab}

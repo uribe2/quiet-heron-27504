@@ -66,7 +66,7 @@ export function InteractionForm({ interaction, presetClientId, clients, onSubmit
   }
 
   return (
-    <form id={INTERACTION_FORM_ID} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <form id={INTERACTION_FORM_ID} noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <FormField label={t("interactions.fieldClient")} required error={errorText(errors.clientId?.message)}>
         <Select {...register("clientId")}>
           <option value="">—</option>

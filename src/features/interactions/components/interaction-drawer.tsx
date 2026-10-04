@@ -30,7 +30,9 @@ export function InteractionDrawer({
   onDelete,
 }: InteractionDrawerProps) {
   const { t } = useTranslation();
-  const [isDirty, setIsDirty] = useState(false);
+  const [dirtyFlag, setIsDirty] = useState(false);
+  // The form unmounts when the drawer closes, so a stale flag must never count.
+  const isDirty = isOpen && dirtyFlag;
   const [confirmingClose, setConfirmingClose] = useState(false);
 
   function requestClose() {

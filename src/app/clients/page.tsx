@@ -7,6 +7,7 @@ import { useClients } from "@/features/clients/use-clients";
 import { filterClients, type ClientFilters } from "@/features/clients/logic";
 import type { Client } from "@/features/clients/types";
 import type { ClientFormValues } from "@/features/clients/schema";
+import { useToast } from "@/context/toast-context";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { PageHeader } from "@/components/ui/page-header";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import { ClientDrawer } from "@/features/clients/components/client-drawer";
 
 export default function ClientsPage() {
   const { t } = useTranslation();
+  const { show } = useToast();
   const { clients, createClient, updateClient, archiveClient, deleteClient, getDeletionCheck } = useClients();
   const drawer = useDisclosure(false);
   const [editingClient, setEditingClient] = useState<Client | undefined>(undefined);
@@ -41,8 +43,10 @@ export default function ClientsPage() {
   function handleSubmit(values: ClientFormValues) {
     if (editingClient) {
       updateClient(editingClient.id, values);
+      show({ message: t("clients.updatedToast", { name: values.name }) });
     } else {
       createClient(values);
+      show({ message: t("clients.createdToast", { name: values.name }) });
     }
     drawer.close();
   }

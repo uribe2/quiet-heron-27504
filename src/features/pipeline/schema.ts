@@ -3,7 +3,7 @@ import { getToday } from "@/lib/dates";
 
 const baseOpportunitySchema = z.object({
   clientId: z.string().min(1, "required"),
-  title: z.string().trim().min(2, "required").max(150, "maxLength"),
+  title: z.string().trim().min(1, "required").min(2, "minLength").max(150, "maxLength"),
   /** Amount in currency units (converted to cents on submit). */
   value: z.number("required").min(0, "mustBeNonNegative"),
   stage: z.enum(["contact", "quote", "project", "delivery", "collection"]),

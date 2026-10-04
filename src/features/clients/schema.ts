@@ -1,28 +1,41 @@
 import * as z from "zod";
 import type { Client } from "./types";
 
+const optionalEmail = z
+  .string()
+  .trim()
+  .refine((v) => v === "" || z.email().safeParse(v).success, "invalidEmail")
+  .optional();
+
+const optionalUrl = z
+  .string()
+  .trim()
+  .refine((v) => v === "" || z.url().safeParse(v).success, "invalidUrl")
+  .optional();
+
 const contactFormSchema = z.object({
   id: z.string(),
-  name: z.string().trim().min(1),
+  name: z.string().trim().min(1, "required"),
   role: z.string().optional(),
-  email: z.string().trim().email().optional().or(z.literal("")),
+  email: optionalEmail,
   phone: z.string().optional(),
   isPrimary: z.boolean(),
 });
 
 const baseClientSchema = z.object({
-  name: z.string().trim().min(2).max(100),
+  name: z.string().trim().min(1, "required").min(2, "minLength").max(100, "maxLength"),
   type: z.enum(["company", "individual"]),
-  email: z.string().trim().email().optional().or(z.literal("")),
+  email: optionalEmail,
   phone: z.string().optional(),
-  website: z.string().trim().url().optional().or(z.literal("")),
+  website: optionalUrl,
   taxId: z.string().optional(),
   city: z.string().optional(),
   country: z.string().optional(),
   contacts: z.array(contactFormSchema),
   tags: z.array(z.string()),
+  // The "—" option of the select submits "", which means "no source".
   source: z
-    .enum(["referral", "website", "social", "marketplace", "other"])
+    .enum(["referral", "website", "social", "marketplace", "other", ""])
     .optional(),
   notes: z.string().optional(),
 });
@@ -35,7 +48,7 @@ export function buildClientSchema(existingClients: Client[], excludeId?: string)
         ctx.addIssue({
           code: "custom",
           path: ["contacts"],
-          message: "primary_contact",
+          message: "primaryContactRequired",
         });
       }
     }
@@ -47,7 +60,7 @@ export function buildClientSchema(existingClients: Client[], excludeId?: string)
         c.name.trim().toLowerCase() === normalized,
     );
     if (taken) {
-      ctx.addIssue({ code: "custom", path: ["name"], message: "name_taken" });
+      ctx.addIssue({ code: "custom", path: ["name"], message: "nameTaken" });
     }
   });
 }

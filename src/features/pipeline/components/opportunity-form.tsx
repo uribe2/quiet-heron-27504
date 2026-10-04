@@ -49,10 +49,15 @@ export function OpportunityForm({ opportunity, clients, onSubmit, onDirtyChange 
     onDirtyChange?.(isDirty);
   }, [isDirty, onDirtyChange]);
 
-  const err = (message?: string) => (message ? t(`validation.${message}`) : undefined);
+  const err = (message?: string) => {
+    if (!message) return undefined;
+    if (message === "minLength") return t("validation.minLength", { min: 2 });
+    if (message === "maxLength") return t("validation.maxLength", { max: 150 });
+    return t(`validation.${message}`);
+  };
 
   return (
-    <form id={OPPORTUNITY_FORM_ID} onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+    <form id={OPPORTUNITY_FORM_ID} noValidate onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
       <FormSection title={t("pipeline.sectionGeneral")}>
         <FormField label={t("pipeline.fieldClient")} required error={err(errors.clientId?.message)}>
           <Select {...register("clientId")}>
