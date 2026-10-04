@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
 import { useTranslation } from "@/context/i18n-context";
+import { useToast } from "@/context/toast-context";
 import { useClients, useClient } from "@/features/clients/use-clients";
 import { getPrimaryContact } from "@/features/clients/logic";
 import { PageHeader } from "@/components/ui/page-header";
@@ -19,6 +20,7 @@ import type { ClientFormValues } from "@/features/clients/schema";
 export default function ClientDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();
+  const { show } = useToast();
   const client = useClient(id);
   const { clients, updateClient } = useClients();
   const drawer = useDisclosure(false);
@@ -41,6 +43,7 @@ export default function ClientDetailPage() {
 
   function handleSubmit(values: ClientFormValues) {
     updateClient(activeClient.id, values);
+    show({ message: t("clients.saveSuccess") });
     drawer.close();
   }
 

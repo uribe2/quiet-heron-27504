@@ -3,11 +3,18 @@
 import { useData } from "@/context/data-context";
 import { useUndoableDelete } from "@/hooks/use-undoable-delete";
 import { useTranslation } from "@/context/i18n-context";
+import { useToast } from "@/context/toast-context";
 import { generateId } from "@/lib/ids";
 import { getNowISO } from "@/lib/dates";
 import type { Deliverable, DeliverableStatus } from "./types";
 import type { DeliverableFormValues } from "./schema";
 import { getSwapTarget, nextOrder } from "./logic";
+
+const STATUS_KEYS: Record<DeliverableStatus, string> = {
+  pending: "statusPending",
+  in_progress: "statusInProgress",
+  delivered: "statusDelivered",
+};
 
 function toFields(values: DeliverableFormValues) {
   return {
@@ -22,6 +29,7 @@ export function useDeliverables() {
   const { data, dispatch } = useData();
   const { deleteWithUndo } = useUndoableDelete();
   const { t } = useTranslation();
+  const { show } = useToast();
 
   function createDeliverable(values: DeliverableFormValues): Deliverable {
     const now = getNowISO();
@@ -53,6 +61,12 @@ export function useDeliverables() {
       deliveredAt: status === "delivered" ? getNowISO() : undefined,
     };
     dispatch({ type: "UPDATE", collection: "deliverables", id: deliverable.id, patch });
+    show({
+      message: t("deliverables.statusChangedToast", {
+        title: deliverable.title,
+        status: t(`deliverables.${STATUS_KEYS[status]}`).toLowerCase(),
+      }),
+    });
   }
 
   function move(deliverable: Deliverable, direction: "up" | "down") {

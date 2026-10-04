@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useDisclosure } from "@/hooks/use-disclosure";
 import { useTranslation } from "@/context/i18n-context";
+import { useToast } from "@/context/toast-context";
 import { useProjects } from "@/features/projects/use-projects";
 import { useClients } from "@/features/clients/use-clients";
 import { ProjectDrawer } from "@/features/projects/components/project-drawer";
@@ -15,12 +16,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const mobileMenu = useDisclosure(false);
   const newProjectDrawer = useDisclosure(false);
   const { t } = useTranslation();
+  const { show } = useToast();
   const router = useRouter();
   const { createProject } = useProjects();
   const { clients } = useClients();
 
   function handleCreateProject(values: ProjectFormValues) {
     const project = createProject(values);
+    show({ message: t("projects.saveSuccess") });
     newProjectDrawer.close();
     router.push(`/projects/${project.id}`);
   }
