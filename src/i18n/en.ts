@@ -961,6 +961,7 @@ export const en: typeof es = {
     projectsEmpty: "No active projects.",
     delayed: "Delayed",
     dueOn: "Due {date}",
+    progressOf: "{name} progress",
     hoursLogged: "{hours} h logged",
     aiTitle: "Recommended action",
     openAi: "Open AI Summary",

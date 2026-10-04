@@ -9,7 +9,7 @@ export default function NotFound() {
 
   return (
     <div className="mx-auto flex max-w-xl flex-col items-center gap-4 rounded-xl border border-border bg-surface px-6 py-16 text-center">
-      <p aria-hidden="true" className="select-none text-7xl font-semibold tracking-tight text-accent-soft sm:text-8xl [-webkit-text-stroke:2px_var(--border-strong)]">
+      <p aria-hidden="true" className="select-none text-7xl font-semibold tracking-tight text-accent sm:text-8xl">
         404
       </p>
       <h1 className="text-2xl font-semibold tracking-tight text-text">{t("common.notFoundTitle")}</h1>

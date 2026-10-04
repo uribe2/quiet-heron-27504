@@ -62,7 +62,11 @@ export function ActiveProjects() {
                   >
                     {p.name}
                   </Link>
-                  <ProgressBar percent={progress.percent} tone={progress.isDelayed ? "danger" : "accent"} />
+                  <ProgressBar
+                    percent={progress.percent}
+                    ariaLabel={t("dashboard.progressOf", { name: p.name })}
+                    tone={progress.isDelayed ? "danger" : "accent"}
+                  />
                 </div>
                 <div className="flex flex-wrap items-center justify-between gap-2 rounded-b-xl border-t border-border bg-surface-muted px-5 py-3 text-sm text-text-muted">
                   <span className={`inline-flex items-center gap-1.5 ${progress.isDelayed ? "text-danger" : ""}`}>

@@ -1,10 +1,13 @@
 export function ProgressBar({
   percent,
   label,
+  ariaLabel,
   tone = "accent",
 }: {
   percent: number;
   label?: string;
+  /** Accessible name when there is no visible label (e.g. the title is shown above). */
+  ariaLabel?: string;
   tone?: "accent" | "success" | "warning" | "danger";
 }) {
   const clamped = Math.max(0, Math.min(100, Math.round(percent)));
@@ -28,7 +31,7 @@ export function ProgressBar({
         aria-valuenow={clamped}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={label}
+        aria-label={label ?? ariaLabel}
         className="h-2 w-full overflow-hidden rounded-full bg-border"
       >
         <div className={`h-full rounded-full ${toneClass}`} style={{ width: `${clamped}%` }} />

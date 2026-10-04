@@ -959,6 +959,7 @@ export const es = {
     projectsEmpty: "No hay proyectos activos.",
     delayed: "Retrasado",
     dueOn: "Vence {date}",
+    progressOf: "Progreso de {name}",
     hoursLogged: "{hours} h registradas",
     aiTitle: "Acción recomendada",
     openAi: "Abrir Resumen IA",
