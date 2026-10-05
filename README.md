@@ -10,10 +10,10 @@ Documentación completa en la [wiki del repositorio](https://github.com/isis3710
 
 | Rol | Integrante | Funcionalidades |
 |---|---|---|
-| M1 — Relación | _por completar_ | F01 Clientes · F02 Comunicaciones · F03 Pipeline |
-| M2 — Ejecución | _por completar_ | F04 Proyectos · F05 Entregables · F06 Registro de tiempo |
-| M3 — Cierre | _por completar_ | F07 Cotizaciones · F08 Facturas · F09 Pagos |
-| M4 — Organización e Inteligencia | _por completar_ | F10 Reuniones · F11 Documentos · F12 Resumen IA |
+| M1 — Relación | Juan David Uribe | F01 Clientes · F02 Comunicaciones · F03 Pipeline |
+| M2 — Ejecución | Angel David Gonzalez | F04 Proyectos · F05 Entregables · F06 Registro de tiempo |
+| M3 — Cierre | Benjamin Perez | F07 Cotizaciones · F08 Facturas · F09 Pagos |
+| M4 — Organización e Inteligencia | Juan Felipe Ochoa | F10 Reuniones · F11 Documentos · F12 Resumen IA |
 
 ## Ejecutar con Docker
 
